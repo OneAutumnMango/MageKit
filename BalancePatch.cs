@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
-[BepInPlugin("org.bepinex.plugins.balanceplugin", "Balance Plugin", "1.0.0")]
+[BepInPlugin("org.bepinex.plugins.balancepatch", "Balance Patch", "1.0.0")]
 public class Plugin : BaseUnityPlugin
 {
     public static ManualLogSource LoggerStatic;
@@ -17,7 +17,7 @@ public class Plugin : BaseUnityPlugin
         LoggerStatic = Logger;
         LoggerStatic.LogInfo("Balance Plugin loaded!");
 
-        var harmony = new Harmony("org.bepinex.plugins.refreshprimarylogger");
+        var harmony = new Harmony("org.bepinex.plugins.balancepatch");
         harmony.PatchAll();
     }
 }
