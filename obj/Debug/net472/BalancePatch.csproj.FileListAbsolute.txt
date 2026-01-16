@@ -135,3 +135,4 @@ C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BalancePatch\obj\Debug\ne
 C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BalancePatch\obj\Debug\net472\BalanceP.244C4F1B.Up2Date
 C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BalancePatch\obj\Debug\net472\BalancePatch.dll
 C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BalancePatch\obj\Debug\net472\BalancePatch.pdb
+C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BalancePatch\obj\Debug\net472\BalancePatch.sourcelink.json
