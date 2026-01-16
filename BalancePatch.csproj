@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<OutputType>Library</OutputType>
+		<LangVersion>latest</LangVersion>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="BepInEx">
+			<HintPath>..\BepInEx\core\BepInEx.dll</HintPath>
+		</Reference>
+
+		<Reference Include="UnityEngine">
+			<HintPath>..\MageQuit_Data\Managed\UnityEngine.dll</HintPath>
+		</Reference>
+
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>..\MageQuit_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+
+		<Reference Include="0Harmony">
+			<HintPath>.\bin\Debug\net472\0Harmony.dll</HintPath>
+		</Reference>
+
+		<Reference Include="Assembly-CSharp">
+			<HintPath>..\MageQuit_Data\Managed\Assembly-CSharp.dll</HintPath>
+		</Reference>
+
+	</ItemGroup>
+
+	<Target Name="CopyToBepInEx" AfterTargets="Build">
+		<ItemGroup>
+			<PluginDlls Include="$(OutputPath)BalancePatch.dll;$(OutputPath)0Harmony.dll" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(PluginDlls)"
+			  DestinationFolder="..\BepInEx\plugins"
+			  SkipUnchangedFiles="true" />
+	</Target>
+
+
+</Project>
