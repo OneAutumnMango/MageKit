@@ -4,6 +4,8 @@ using UnityEngine;
 using HarmonyLib;
 using System;
 
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
 [BepInPlugin("org.bepinex.plugins.balanceplugin", "Balance Plugin", "1.0.0")]
 public class Plugin : BaseUnityPlugin
@@ -35,9 +37,9 @@ public static class Patch_RefreshPrimary
     }
 }
 
-//[HarmonyPatch(typeof(Geyser), "Initialize")]
-//public static class Patch_SpellInitialize
-//{
+// [HarmonyPatch(typeof(Chameleon), "Initialize")]
+// public static class Patch_SpellInitialize
+// {
 //    static void Postfix(Spell __instance, Identity identity, Vector3 position, Quaternion rotation, float curve, int spellIndex = -1, bool selfCast = false, SpellName spellNameForCooldown = SpellName.Fireball)
 //    {
 //        try
@@ -70,7 +72,7 @@ public static class Patch_RefreshPrimary
 //            Debug.LogError($"[SpellLogger] Exception logging spell: {ex}");
 //        }
 //    }
-//}
+// }
 
 // act faster out of geyser (top of jump)
 [HarmonyPatch(typeof(Geyser), "Initialize")]
@@ -79,8 +81,6 @@ public static class Patch_GeyserInitialize
     static void Postfix(Spell __instance)
     {
         if (__instance == null) return;
-
-        float oldWindDown = __instance.windDown;
         __instance.windDown = 0.5f;
     }
 }
@@ -122,3 +122,30 @@ public static class Patch_FlameLeapPrepareDestroy
     }
 }
 
+[HarmonyPatch(typeof(ChainmailObject), "Update")]
+public static class Patch_ChainmailObject_Update
+{
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        foreach (var instr in instructions)
+        {
+            // Replace the 4.7f constant with 3f
+            if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && f == 4.7f)
+            {
+                instr.operand = 3f;
+            }
+            yield return instr;
+        }
+    }
+}
+
+
+[HarmonyPatch(typeof(Chameleon), "Initialize")]
+public static class Patch_ChameleonInitialize
+{
+    static void Prefix(Spell __instance)
+    {
+        if (__instance == null) return;
+        __instance.cooldown = 9f;
+    }
+}
