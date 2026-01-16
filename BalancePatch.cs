@@ -3,29 +3,24 @@ using BepInEx.Logging;
 using UnityEngine;
 using HarmonyLib;
 using System;
-using System.Reflection;
-using System.Text;
 
 
 [BepInPlugin("org.bepinex.plugins.balanceplugin", "Balance Plugin", "1.0.0")]
 public class Plugin : BaseUnityPlugin
 {
-    // Static logger accessible from Harmony patches
     public static ManualLogSource LoggerStatic;
 
     private void Awake()
     {
-        // Assign instance logger to static field
         LoggerStatic = Logger;
-
         LoggerStatic.LogInfo("Balance Plugin loaded!");
 
-        // Create Harmony instance and patch all methods
         var harmony = new Harmony("org.bepinex.plugins.refreshprimarylogger");
         harmony.PatchAll();
     }
 }
 
+// stop flashflood refreshing primary
 [HarmonyPatch(typeof(SpellHandler), "RefreshPrimary")]
 public static class Patch_RefreshPrimary
 {
@@ -77,6 +72,7 @@ public static class Patch_RefreshPrimary
 //    }
 //}
 
+// act faster out of geyser (top of jump)
 [HarmonyPatch(typeof(Geyser), "Initialize")]
 public static class Patch_GeyserInitialize
 {
@@ -88,3 +84,41 @@ public static class Patch_GeyserInitialize
         __instance.windDown = 0.5f;
     }
 }
+
+// show hitboxes (dont use wormhole)
+// [HarmonyPatch(typeof(GameUtility), "GetAllInSphere")]
+// public static class Patch_GetAllInSphere_Debug
+// {
+//     static void Prefix(Vector3 center, float radius)
+//     {
+//         DrawDebugSphere(center, radius);
+//     }
+
+//     static void DrawDebugSphere(Vector3 pos, float radius)
+//     {
+//         var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+//         go.transform.position = pos;
+//         go.transform.localScale = Vector3.one * radius * 2f;
+
+//         var col = go.GetComponent<Collider>();
+//         if (col) col.enabled = false;
+
+//         var mr = go.GetComponent<MeshRenderer>();
+//         mr.material = new Material(Shader.Find("Sprites/Default"));
+//         mr.material.color = new Color(1f, 0f, 0f, 0.25f);
+
+//         GameObject.Destroy(go, 0.1f);
+//     }
+// }
+
+// reduce flameleap offset, make it slighly closer to landing site
+[HarmonyPatch(typeof(FlameLeapObject), "PrepareDestroy")]
+public static class Patch_FlameLeapPrepareDestroy
+{
+    static void Prefix(FlameLeapObject __instance)
+    {
+        __instance.transform.position += __instance.transform.forward * -1f;
+
+    }
+}
+
