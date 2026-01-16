@@ -6,6 +6,8 @@ using System;
 
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.Reflection;
+
 
 [BepInPlugin("org.bepinex.plugins.balancepatch", "Balance Patch", "1.0.0")]
 public class Plugin : BaseUnityPlugin
@@ -129,10 +131,9 @@ public static class Patch_ChainmailObject_Update
     {
         foreach (var instr in instructions)
         {
-            // Replace the 4.7f constant with 3f
             if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && f == 4.7f)
             {
-                instr.operand = 3f;
+                instr.operand = 3.5f;
             }
             yield return instr;
         }
@@ -147,5 +148,88 @@ public static class Patch_ChameleonInitialize
     {
         if (__instance == null) return;
         __instance.cooldown = 9f;
+    }
+}
+
+[HarmonyPatch(typeof(SustainObjectObject), "rpcImpact")]
+public static class Patch_SustainObject_rpcImpact_SetDamage
+{
+    static void Prefix(SpellObject __instance)
+    {
+        const float NewDamage = 5f;
+
+        typeof(SpellObject)
+            .GetField("DAMAGE", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?.SetValue(__instance, NewDamage);
+    }
+}
+
+[HarmonyPatch(typeof(IgniteObject), "FixedUpdate")]
+public static class Patch_IgniteObject_FixedUpdate_SetDPS
+{
+    static readonly AccessTools.FieldRef<IgniteObject, List<UnitStatus>> TargetsField =
+        AccessTools.FieldRefAccess<IgniteObject, List<UnitStatus>>("targets");
+
+    static readonly AccessTools.FieldRef<IgniteObject, Identity> IdField =
+        AccessTools.FieldRefAccess<IgniteObject, Identity>("id");
+
+    static bool Prefix(IgniteObject __instance)
+    {
+        if (__instance == null) return true;
+
+        var targets = TargetsField(__instance);
+        if (targets == null || targets.Count == 0)
+            return false;
+
+        var id = IdField(__instance);
+        if (id == null) return false;  // skip if not initialized
+
+        float newDPS = 1.5f;
+        int owner = id.owner;  // strongly-typed, safe
+
+        foreach (var unit in targets)
+        {
+            if (unit != null)
+                unit.ApplyDamage(newDPS * Time.fixedDeltaTime, owner, 13);
+        }
+
+        return false;  // skip original FixedUpdate
+    }
+}
+
+[HarmonyPatch(typeof(RocketObject), "Awake")]
+public static class Patch_RocketObject_Awake_SetStartTime
+{
+    static readonly AccessTools.FieldRef<SpellObject, float> StartTimeRef =
+        AccessTools.FieldRefAccess<SpellObject, float>("START_TIME");
+
+    static void Postfix(RocketObject __instance)
+    {
+        StartTimeRef(__instance) = 1.5f;
+    }
+}
+
+[HarmonyPatch(typeof(WizardStatus), "rpcApplyDamage")]
+public static class Patch_WizardStatus_rpcApplyDamage
+{
+    static void Prefix(WizardStatus __instance, float damage, int owner, int source)
+    {
+        var idField = typeof(WizardStatus).GetField("id", BindingFlags.Instance | BindingFlags.NonPublic);
+        var idValue = idField?.GetValue(__instance);
+
+        int wizardOwner = -1;
+        if (idValue != null)
+        {
+            var ownerField = idValue.GetType().GetField("owner", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (ownerField != null)
+                wizardOwner = (int)ownerField.GetValue(idValue);
+        }
+
+        Debug.Log($"[Damage Log] Wizard {wizardOwner} is about to take {damage} damage from {owner}, source {source}");
+    }
+
+    static void Postfix(WizardStatus __instance, float damage, int owner, int source)
+    {
+        Debug.Log($"[Damage Log] Wizard's remaining health: {__instance.health}");
     }
 }
