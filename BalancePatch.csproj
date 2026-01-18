@@ -36,6 +36,9 @@
 			<HintPath>..\MageQuit_Data\Managed\UnityEngine.VideoModule.dll</HintPath>
 		</Reference>
 
+		<Reference Include="UnityEngine.IMGUIModule">
+			<HintPath>..\MageQuit_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+		</Reference>
 
 	</ItemGroup>
 
