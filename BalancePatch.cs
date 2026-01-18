@@ -76,17 +76,6 @@ public static class Patch_RefreshPrimary
 //    }
 // }
 
-// act faster out of geyser (top of jump)
-[HarmonyPatch(typeof(Geyser), "Initialize")]
-public static class Patch_GeyserInitialize
-{
-    static void Postfix(Spell __instance)
-    {
-        if (__instance == null) return;
-        __instance.windDown = 0.5f;
-    }
-}
-
 // show hitboxes (dont use wormhole)
 // [HarmonyPatch(typeof(GameUtility), "GetAllInSphere")]
 // public static class Patch_GetAllInSphere_Debug
@@ -112,6 +101,18 @@ public static class Patch_GeyserInitialize
 //         GameObject.Destroy(go, 0.1f);
 //     }
 // }
+
+// act faster out of geyser (top of jump)
+[HarmonyPatch(typeof(Geyser), "Initialize")]
+public static class Patch_GeyserInitialize
+{
+    static void Postfix(Spell __instance)
+    {
+        if (__instance == null) return;
+        __instance.windDown = 0.5f;
+    }
+}
+
 
 // reduce flameleap offset, make it slighly closer to landing site
 [HarmonyPatch(typeof(FlameLeapObject), "PrepareDestroy")]
@@ -152,51 +153,31 @@ public static class Patch_ChameleonInitialize
     }
 }
 
-// increased sustain damage from 3 to 5
-[HarmonyPatch(typeof(SustainObjectObject), "rpcImpact")]
-public static class Patch_SustainObject_rpcImpact_SetDamage
+
+[HarmonyPatch(typeof(WizardStatus), "rpcApplyDamage")]
+public static class Patch_WizardStatus_rpcApplyDamage_SourceScaling
 {
-    static void Prefix(SpellObject __instance)
+    static void Prefix(ref float damage, int owner, int source)
     {
-        const float NewDamage = 5f;
-
-        typeof(SpellObject)
-            .GetField("DAMAGE", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            ?.SetValue(__instance, NewDamage);
-    }
-}
-
-// reduce ignite dps from 1.8 to 1.5
-[HarmonyPatch(typeof(IgniteObject), "FixedUpdate")]
-public static class Patch_IgniteObject_FixedUpdate_SetDPS
-{
-    static readonly AccessTools.FieldRef<IgniteObject, List<UnitStatus>> TargetsField =
-        AccessTools.FieldRefAccess<IgniteObject, List<UnitStatus>>("targets");
-
-    static readonly AccessTools.FieldRef<IgniteObject, Identity> IdField =
-        AccessTools.FieldRefAccess<IgniteObject, Identity>("id");
-
-    static bool Prefix(IgniteObject __instance)
-    {
-        if (__instance == null) return true;
-
-        var targets = TargetsField(__instance);
-        if (targets == null || targets.Count == 0)
-            return false;
-
-        var id = IdField(__instance);
-        if (id == null) return false;
-
-        float newDPS = 1.5f;
-        int owner = id.owner;
-
-        foreach (var unit in targets)
+        switch (source)
         {
-            if (unit != null)
-                unit.ApplyDamage(newDPS * Time.fixedDeltaTime, owner, 13);
-        }
+            case 48:  // chainlightning
+                damage *= 0.75f;
+                break;
 
-        return false;  // skip original FixedUpdate
+            case 37:  // sustain
+                damage = 5f;
+                break;
+
+            case 13:  // ignite
+                damage *= 0.833f;
+                break;
+        }
+    }
+
+    static void Postfix(WizardStatus __instance, float damage, int owner, int source)
+    {
+        Debug.Log($"[Damage Log] Wizard's remaining health: {__instance.health}, damage taken: {damage}");
     }
 }
 
@@ -247,6 +228,6 @@ public static class Patch_TetherballObject_Init_SetStartTime
 
 //     static void Postfix(WizardStatus __instance, float damage, int owner, int source)
 //     {
-//         Debug.Log($"[Damage Log] Wizard's remaining health: {__instance.health}");
+//         Debug.Log($"[Damage Log] Wizard's remaining health: {__instance.health}, damage taken: {damage}");
 //     }
 // }
