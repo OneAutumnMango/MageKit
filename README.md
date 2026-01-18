@@ -14,7 +14,7 @@ DO NOT USE THESE MODS FOR ONLINE PLAY WITH RANDOMS. IT CAN CAUSE SOME MAJOR ISSU
 3. Build this plugin with `dotnet build` (maybe there will be a prebuild dll in bin).
 
    If this breaks remove the `CopyToBepInEx` target from the `.csproj` file probably, message `oneautumnmango` on Discord, DO NOT ASK THE MAGEQUIT DISCORD.
-4. If you didn't build, you need to copy `bin/Debug/net472/BalancePatch.dll` and `0Harmony.dll` (i think). Perhaps just the former.
+4. If you didn't build, you need to copy `bin/Debug/net472/BalancePatch.dll` to `MageQuit/BepInEx/plugins`.
 5. Launch the game.
 
 
