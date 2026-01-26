@@ -176,4 +176,20 @@ namespace Patches.Balance
             }
         }
     }
+
+    [HarmonyPatch(typeof(SpellManager), "Awake")]
+    public static class Patch_SpellManager_Awake_Postfix_Descriptions
+    {
+        static void Postfix(SpellManager __instance)
+        {
+            var mgr = __instance ?? Globals.spell_manager;
+            if (mgr == null || mgr.spell_table == null) return;
+
+            if (mgr.spell_table.TryGetValue(SpellName.FlashFlood, out Spell flashFloodSpell))
+                flashFloodSpell.description = "Short range teleport that resets velocity. Can be reactivated to return to casting point.";
+
+            if (mgr.spell_table.TryGetValue(SpellName.Brrage, out Spell brrageSpell))
+                brrageSpell.description = "Fires a barrage of 3 icicles in the cast direction, dealing damage and creating new crystals after a delay. On cast, your Crystals become Inert, just sitting there.";
+        }
+    }
 }
