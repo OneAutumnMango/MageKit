@@ -252,4 +252,22 @@ namespace Patches.Balance
             return true;
         }
     }
+
+    // reduce hinder slow from 50% to 40%
+    [HarmonyPatch(typeof(HinderObject), "localApplySlow")]
+    public static class Patch_HinderObject_localApplySlow_Speed
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            float prev = 0.5f;
+            foreach (var instr in instructions)
+            {
+                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - prev) < 1e-6f)
+                {
+                    instr.operand = prev * 1.2f;
+                }
+                yield return instr;
+            }
+        }
+    }
 }

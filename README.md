@@ -41,6 +41,7 @@ MageQuit Gameplay Changes:
 - Towvine: cooldown reduced from 12s → 9s
 - Bubble Breaker: prevents lava damage
 - BullRush: cooldown increased from 12s → 13s
+- Hinder: slow reduced from 50% → 40%
 
 Debugging:
 - Damage and Healing logged
