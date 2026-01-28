@@ -27,7 +27,7 @@ MageQuit Gameplay Changes:
 - Chain Lightning: does 25% less damage
 - Tetherball: duration reduced from 7s → 5s
 - Sustain: now deals 5 damage
-- Rocket: increased range
+- Rocket: increased range by 50%
 - Fire Melee: damage reduced by 17%
 - Chameleon: cooldown reduced from 13s → 9s
 - Chainmail: duration reduced from 4.7s → 3.5s
