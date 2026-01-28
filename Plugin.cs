@@ -9,6 +9,8 @@ namespace BalancePatch
     {
         public static ManualLogSource Log;
 
+        public static string seed = "";
+
         private void Awake()
         {
             Log = Logger;
@@ -21,29 +23,44 @@ namespace BalancePatch
         {
             const int w = 160;
             const int h = 25;
+            const int spacing = 10;
+
+            int x = 20;
+            int y1 = 20;
+            int y2 = 55;
 
             // ---------------- Balance ----------------
             if (!Loader.BalanceLoaded)
             {
-                if (UnityEngine.GUI.Button(new Rect(20, 20, w, h), "Load Balance"))
+                if (UnityEngine.GUI.Button(new Rect(x, y1, w, h), "Load Balance"))
                     Loader.LoadBalance();
             }
             else
             {
-                if (GUI.Button(new Rect(20, 20, w, h), "Unload Balance"))
+                if (GUI.Button(new Rect(x, y1, w, h), "Unload Balance"))
                     Loader.UnloadBalance();
             }
 
             // ---------------- Debug ----------------
             if (!Loader.DebugLoaded)
             {
-                if (GUI.Button(new Rect(20, 55, w, h), "Load Debug"))
+                if (GUI.Button(new Rect(x, y2, w, h), "Load Debug"))
                     Loader.LoadDebug();
             }
             else
             {
-                if (GUI.Button(new Rect(20, 55, w, h), "Unload Debug"))
+                if (GUI.Button(new Rect(x, y2, w, h), "Unload Debug"))
                     Loader.UnloadDebug();
+            }
+
+            int x2 = x + w + spacing;
+            int textW = 80;
+            seed = GUI.TextField(new Rect(x2, y1, textW, h), seed);
+
+            if (GUI.Button(new Rect(x2, y1 + h + spacing, textW, h), "Submit"))
+            {
+                Log.LogInfo($"BalancePatch input: {seed}");
+                // additional handling of seed can be added here
             }
         }
     }
