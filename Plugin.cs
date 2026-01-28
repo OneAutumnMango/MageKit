@@ -10,6 +10,8 @@ namespace BalancePatch
         public static ManualLogSource Log;
 
         public static string seed = "";
+        public static System.Random Randomiser;
+        public static int CurrentSeedInt;
 
         private void Awake()
         {
@@ -57,10 +59,29 @@ namespace BalancePatch
             int textW = 80;
             seed = GUI.TextField(new Rect(x2, y1, textW, h), seed);
 
-            if (GUI.Button(new Rect(x2, y1 + h + spacing, textW, h), "Submit"))
+            if (GUI.Button(new Rect(x2, y1 + h + spacing, textW, h), "Randomise"))
             {
-                Log.LogInfo($"BalancePatch input: {seed}");
-                // additional handling of seed can be added here
+                int seedInt = hash(seed);
+                CurrentSeedInt = seedInt;
+                Randomiser = new System.Random(seedInt);
+                Log.LogInfo($"BalancePatch input: '{seed}' -> seedInt={seedInt}");
+            }
+        }
+
+        static int hash(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return 0;
+
+            unchecked
+            {
+                int hash = 0;
+                foreach (char c in s)
+                {
+                    hash ^= c;
+                    hash *= 0x5bd1e995;
+                    hash ^= hash >> 15;
+                }
+                return hash;
             }
         }
     }
