@@ -42,6 +42,7 @@ MageQuit Gameplay Changes:
 - Bubble Breaker: prevents lava damage
 - BullRush: cooldown increased from 12s → 13s
 - Hinder: slow reduced from 50% → 40%
+- Echo: cooldown reduces from 5.5s → 5s
 
 Debugging:
 - Damage and Healing logged

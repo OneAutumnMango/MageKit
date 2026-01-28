@@ -184,6 +184,8 @@ namespace Patches.Balance
             if (mgr.spell_table.TryGetValue(SpellName.BullRush, out Spell bullRushSpell))
                 bullRushSpell.cooldown = 13f;
 
+            if (mgr.spell_table.TryGetValue(SpellName.Echo, out Spell echoSpell))
+                echoSpell.cooldown = 5f;
 
             if (mgr.spell_table.TryGetValue(SpellName.FlashFlood, out Spell flashFloodSpell))
                 flashFloodSpell.description = "Short range teleport that resets velocity. Can be reactivated to return to casting point.";
