@@ -2,11 +2,9 @@ using HarmonyLib;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
 using BalancePatch;
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Patches.Randomiser
 {
@@ -118,8 +116,6 @@ namespace Patches.Randomiser
                     FieldInfo field = spellType.GetField(fieldName, flags);
                     if (field != null && field.FieldType == typeof(float))
                     {
-                        Plugin.Log.LogInfo($"[AwkwardRandomiser] Patching {name} {fieldName}");
-
                         float original = (float)field.GetValue(instance);
                         float tweaked = RandomTweak(rng, original);
 
