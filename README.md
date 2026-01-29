@@ -56,7 +56,7 @@ DO NOT USE THESE MODS FOR ONLINE PLAY WITH RANDOMS. IT CAN CAUSE SOME MAJOR ISSU
 - Towvine: cooldown reduced from 12s → 9s
 - Bubble Breaker: prevents lava damage
 - BullRush: cooldown increased from 12s → 13s
-- Hinder: slow reduced from 50% → 40%
+- Hinder: slow reduced from 50% → 35%
 - Echo: cooldown reduced from 5.5s → 5s
 
 **Randomiser**:
