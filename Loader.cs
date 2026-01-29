@@ -1,4 +1,5 @@
 using HarmonyLib;
+using Patches.Randomiser;
 using System;
 using System.Reflection;
 
@@ -8,13 +9,15 @@ namespace BalancePatch
     {
         private const string BalanceHarmonyId = "org.bepinex.plugins.balancepatch.balance";
         private const string DebugHarmonyId = "org.bepinex.plugins.balancepatch.debug";
+        private const string RandomiserHarmonyId = "org.bepinex.plugins.balancepatch.randomiser";
 
         private static Harmony _balanceHarmony;
         private static Harmony _debugHarmony;
+        private static Harmony _randomiserHarmony;
 
         public static bool BalanceLoaded { get; private set; }
         public static bool DebugLoaded { get; private set; }
-
+        public static bool RandomiserLoaded { get; private set; }
         // ---------------- Balance ----------------
 
         public static void LoadBalance()
@@ -62,6 +65,34 @@ namespace BalancePatch
             DebugLoaded = false;
             Plugin.Log.LogInfo("Debug patches unloaded");
         }
+
+        // ---------------- Randomiser ----------------
+
+        public static void LoadRandomiser()
+        {
+            if (RandomiserLoaded) return;
+
+            _randomiserHarmony = new Harmony(RandomiserHarmonyId);
+            PatchGroup(_randomiserHarmony, typeof(Patches.Randomiser.RandomiserPatch));
+
+            Patch_SpellManager_Randomiser.PrecomputeSpellAttributes();
+            Patch_SpellManager_Randomiser.PatchAllSpellObjects(_randomiserHarmony);
+
+            RandomiserLoaded = true;
+            Plugin.Log.LogInfo("Randomiser patches loaded");
+        }
+
+        // public static void UnloadRandomiser()
+        // {
+        //     if (!RandomiserLoaded) return;
+
+        //     _randomiserHarmony.UnpatchSelf();
+        //     _randomiserHarmony = null;
+
+        //     RandomiserLoaded = false;
+        //     RandomiserUnloaded = true;
+        //     Plugin.Log.LogInfo("Randomiser patches unloaded");
+        // }
 
         // ---------------- Shared ----------------
 
