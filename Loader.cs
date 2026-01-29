@@ -71,11 +71,12 @@ namespace BalancePatch
 
         public static void LoadRandomiser()
         {
-            // if (RandomiserLoaded) return;
+            if (RandomiserLoaded) return;
 
             _randomiserHarmony = new Harmony(RandomiserHarmonyId);
             PatchGroup(_randomiserHarmony, typeof(Patches.Randomiser.RandomiserPatch));
 
+            Patch_SpellManager_Awake_Postfix_Randomiser.PrecomputeSpellValues();
             Patch_SpellManager_Awake_Postfix_Randomiser.PatchAllSpellObjects(_randomiserHarmony);
 
             RandomiserLoaded = true;

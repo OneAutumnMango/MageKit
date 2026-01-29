@@ -17,13 +17,14 @@ namespace Patches.Randomiser
     public static class Patch_SpellManager_Awake_Postfix_Randomiser
     {
         public static SpellManager mgr;
+        private static readonly float bound = 1.6f;
+
         static void Postfix(SpellManager __instance)
         {
             mgr = __instance ?? Globals.spell_manager;
             if (mgr == null || mgr.spell_table == null) return;
 
             System.Random rng = Plugin.Randomiser;
-            float bound = 1.6f;
 
             foreach (SpellName name in SpellName.GetValues(typeof(SpellName)))
             {
@@ -36,11 +37,11 @@ namespace Patches.Randomiser
                             ? oldValue => NextGaussian(rng, oldValue, 0.1f * oldValue)
                             : oldValue => RandomTweak(rng, oldValue);
 
-                    spell.cooldown        = tweakFunc(spell.cooldown);
-                    spell.windUp          = Math.Min(tweakFunc(spell.windUp), spell.windUp * bound);
-                    spell.windDown        = Math.Min(tweakFunc(spell.windDown), spell.windDown * bound);
+                    spell.cooldown = tweakFunc(spell.cooldown);
+                    spell.windUp = Math.Min(tweakFunc(spell.windUp), spell.windUp * bound);
+                    spell.windDown = Math.Min(tweakFunc(spell.windDown), spell.windDown * bound);
                     spell.initialVelocity = Math.Max(tweakFunc(spell.initialVelocity), spell.initialVelocity / bound);
-                    spell.spellRadius     = tweakFunc(spell.spellRadius);
+                    spell.spellRadius = tweakFunc(spell.spellRadius);
                 }
             }
         }
@@ -56,11 +57,14 @@ namespace Patches.Randomiser
         public static float RandomTweak(System.Random rng, float original, float stdDev = 0.45f, float rareMultiplier = 3f, float rareChance = 0.1f)
         {
             float value = NextGaussian(rng, original, stdDev * original); // small wiggle
-            if (rng.NextDouble() < rareChance) {
+            if (rng.NextDouble() < rareChance)
+            {
+                if (original == 0f)
+                    original += 0.1f;  // surely have some fun
                 value = original + (float)((rng.NextDouble() * 2 - 1) * rareMultiplier * original); // big deviation
-                Plugin.Log.LogInfo($"[RandomTweak] {original:F2} -> {value:F2}");
+                Plugin.Log.LogInfo($"[RandomTweak] {original:F2} -> {Math.Max(0, value):F2}");
             }
-            return value;
+            return Math.Max(0, value);
         }
 
         public static void PatchAllSpellObjects(Harmony harmony)
@@ -76,36 +80,76 @@ namespace Patches.Randomiser
                 MethodInfo initMethod = spellType.GetMethod("Init", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (initMethod == null) continue;
 
-                MethodInfo postfixMethod = typeof(Patch_SpellManager_Awake_Postfix_Randomiser).GetMethod(
-                    nameof(Postfix_SpellObjectInit),
+                MethodInfo prefixMethod = typeof(Patch_SpellManager_Awake_Postfix_Randomiser).GetMethod(
+                    nameof(Prefix_SpellObjectInit),
                     BindingFlags.Static | BindingFlags.NonPublic
                 );
 
-                harmony.Patch(initMethod, postfix: new HarmonyMethod(postfixMethod));
-                Plugin.Log.LogInfo("Randomiser damage patches loaded");
+                harmony.Patch(initMethod, prefix: new HarmonyMethod(prefixMethod));
             }
         }
 
+        private static readonly Dictionary<Type, Dictionary<string, float>> PrecomputedSpellValues = [];
 
-        private static void Postfix_SpellObjectInit(object __instance)
+        public static void PrecomputeSpellValues()
         {
             var rng = Plugin.Randomiser;
-            BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
             string[] tweakFields = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
 
-            foreach (var fieldName in tweakFields)
+            foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
-                FieldInfo field = __instance.GetType().GetField(fieldName, flags);
-                if (field != null && field.FieldType == typeof(float))
-                {
-                    float oldValue = (float)field.GetValue(__instance);
-                    float newValue = RandomTweak(rng, oldValue);
-                    field.SetValue(__instance, newValue);
+                string fullTypeName = $"{name}Object";
+                Type spellType = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(a => a.GetType(fullTypeName, false))
+                    .FirstOrDefault(t => t != null);
 
-                    Plugin.Log.LogInfo($"[{__instance.GetType().Name}] {field.Name}: {oldValue:F2} -> {newValue:F2}");
+                if (spellType == null)
+                    continue;
+
+                // Construct a dummy instance
+                object instance = Activator.CreateInstance(spellType);
+
+                var values = new Dictionary<string, float>();
+
+                foreach (var fieldName in tweakFields)
+                {
+                    FieldInfo field = spellType.GetField(fieldName, flags);
+                    if (field != null && field.FieldType == typeof(float))
+                    {
+                        Plugin.Log.LogInfo($"[AwkwardRandomiser] Patching {name} {fieldName}");
+
+                        float original = (float)field.GetValue(instance);
+                        float tweaked = RandomTweak(rng, original);
+
+                        if (fieldName == "RADIUS")
+                            tweaked = Mathf.Clamp(tweaked, original / bound, original * bound);
+
+                        values[fieldName] = tweaked;
+                    }
                 }
+
+                PrecomputedSpellValues[spellType] = values;
             }
         }
+
+        private static void Prefix_SpellObjectInit(object __instance)
+        {
+            Type t = __instance.GetType();
+
+            if (!PrecomputedSpellValues.TryGetValue(t, out var cached))
+                return;
+
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+            foreach (var kvp in cached)
+            {
+                FieldInfo field = t.GetField(kvp.Key, flags);
+                field.SetValue(__instance, kvp.Value);
+            }
+        }
+
+
     }
 }
