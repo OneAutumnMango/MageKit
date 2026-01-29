@@ -126,6 +126,7 @@ namespace Patches.Randomiser
                         if (fieldName == "RADIUS")
                             tweaked = Mathf.Clamp(tweaked, original / bound, original * bound);
 
+                        Plugin.Log.LogInfo($"[AwkwardRandomiser] {fieldName} {original} -> {tweaked}");
                         values[fieldName] = tweaked;
                     }
                 }

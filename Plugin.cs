@@ -57,26 +57,19 @@ namespace BalancePatch
             int x2 = x + w + spacing;
             int textW = 80;
 
-            if (Loader.RandomiserUnloaded)
-                return;
+            GUI.enabled = !Loader.RandomiserLoaded;
 
-            if (!Loader.RandomiserLoaded)
+            seed = GUI.TextField(new Rect(x2, y1, textW, h), seed);
+            if (GUI.Button(new Rect(x2, y1 + h + spacing, textW, h), "Randomise"))
             {
-                seed = GUI.TextField(new Rect(x2, y1, textW, h), seed);
+                int seedInt = hash(seed);
+                Randomiser = new System.Random(seedInt);
+                Log.LogInfo($"BalancePatch input: '{seed}' -> seedInt={seedInt}");
+                Loader.LoadRandomiser();
+            }
 
-                if (GUI.Button(new Rect(x2, y1 + h + spacing, textW, h), "Randomise"))
-                {
-                    int seedInt = hash(seed);
-                    Randomiser = new System.Random(seedInt);
-                    Log.LogInfo($"BalancePatch input: '{seed}' -> seedInt={seedInt}");
-                    Loader.LoadRandomiser();
-                }
-            }
-            else
-            {
-                if (GUI.Button(new Rect(x2, y1, w, h), "Unload Randomiser"))
-                    Loader.UnloadRandomiser();
-            }
+            // Restore GUI
+            GUI.enabled = true;
         }
 
         private static int hash(string s)

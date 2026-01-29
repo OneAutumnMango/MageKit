@@ -18,8 +18,6 @@ namespace BalancePatch
         public static bool BalanceLoaded { get; private set; }
         public static bool DebugLoaded { get; private set; }
         public static bool RandomiserLoaded { get; private set; }
-        public static bool RandomiserUnloaded { get; private set; }
-
         // ---------------- Balance ----------------
 
         public static void LoadBalance()
@@ -84,17 +82,17 @@ namespace BalancePatch
             Plugin.Log.LogInfo("Randomiser patches loaded");
         }
 
-        public static void UnloadRandomiser()
-        {
-            if (!RandomiserLoaded) return;
+        // public static void UnloadRandomiser()
+        // {
+        //     if (!RandomiserLoaded) return;
 
-            _randomiserHarmony.UnpatchSelf();
-            _randomiserHarmony = null;
+        //     _randomiserHarmony.UnpatchSelf();
+        //     _randomiserHarmony = null;
 
-            RandomiserLoaded = false;
-            RandomiserUnloaded = true;
-            Plugin.Log.LogInfo("Randomiser patches unloaded");
-        }
+        //     RandomiserLoaded = false;
+        //     RandomiserUnloaded = true;
+        //     Plugin.Log.LogInfo("Randomiser patches unloaded");
+        // }
 
         // ---------------- Shared ----------------
 
