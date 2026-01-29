@@ -29,6 +29,8 @@ namespace Patches.Randomiser
             {
                 if (mgr.spell_table.TryGetValue(name, out Spell spell))
                 {
+                    Plugin.Log.LogInfo($"[Randomiser] Patching {name}");
+
                     Func<float, float> tweakFunc =
                         spell.spellButton == SpellButton.Primary
                             ? oldValue => NextGaussian(rng, oldValue, 0.1f * oldValue)
@@ -54,8 +56,10 @@ namespace Patches.Randomiser
         public static float RandomTweak(System.Random rng, float original, float stdDev = 0.45f, float rareMultiplier = 3f, float rareChance = 0.1f)
         {
             float value = NextGaussian(rng, original, stdDev * original); // small wiggle
-            if (rng.NextDouble() < rareChance)
+            if (rng.NextDouble() < rareChance) {
                 value = original + (float)((rng.NextDouble() * 2 - 1) * rareMultiplier * original); // big deviation
+                Plugin.Log.LogInfo($"[RandomTweak] {original:F2} -> {value:F2}");
+            }
             return value;
         }
 
@@ -63,7 +67,7 @@ namespace Patches.Randomiser
         {
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
-                string fullTypeName = $"BalancePatch.{name}Object"; // include namespace
+                string fullTypeName = $"{name}Object";
                 Type spellType = AppDomain.CurrentDomain.GetAssemblies()
                                     .Select(a => a.GetType(fullTypeName))
                                     .FirstOrDefault(t => t != null);
@@ -78,15 +82,17 @@ namespace Patches.Randomiser
                 );
 
                 harmony.Patch(initMethod, postfix: new HarmonyMethod(postfixMethod));
+                Plugin.Log.LogInfo("Randomiser damage patches loaded");
             }
         }
+
 
         private static void Postfix_SpellObjectInit(object __instance)
         {
             var rng = Plugin.Randomiser;
             BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-            string[] tweakFields = { "DAMAGE", "RADIUS", "POWER", "Y_POWER" };
+            string[] tweakFields = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
 
             foreach (var fieldName in tweakFields)
             {

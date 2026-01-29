@@ -73,11 +73,6 @@ namespace BalancePatch
         {
             // if (RandomiserLoaded) return;
 
-            // call SpellManager.Awake() again
-            typeof(SpellManager).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.Invoke(Patch_SpellManager_Awake_Postfix_Randomiser.mgr, null);
-
-
             _randomiserHarmony = new Harmony(RandomiserHarmonyId);
             PatchGroup(_randomiserHarmony, typeof(Patches.Randomiser.RandomiserPatch));
 
