@@ -259,14 +259,33 @@ namespace Patches.Balance
     [HarmonyPatch(typeof(HinderObject), "localApplySlow")]
     public static class Patch_HinderObject_localApplySlow_Speed
     {
+
+        public static readonly float oldSlowFactor = 0.5f;
+        public static readonly float newSlowFactor = 0.65f;  // slows by (1 - newSlowFactor)
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            float prev = 0.5f;
             foreach (var instr in instructions)
             {
-                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - prev) < 1e-6f)
+                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - oldSlowFactor) < 1e-6f)
                 {
-                    instr.operand = prev * 1.2f;
+                    instr.operand = newSlowFactor;
+                }
+                yield return instr;
+            }
+        }
+    }
+
+    // restore speed
+    [HarmonyPatch(typeof(HinderObject), "OnDestroy")]
+    static class Patch_HinderObject_OnDestroy
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            foreach (var instr in instructions)
+            {
+                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - Patch_HinderObject_localApplySlow_Speed.oldSlowFactor) < 1e-6f)
+                {
+                    instr.operand = Patch_HinderObject_localApplySlow_Speed.newSlowFactor;
                 }
                 yield return instr;
             }
