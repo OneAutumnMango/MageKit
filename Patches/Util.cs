@@ -16,6 +16,18 @@ namespace Patches.Util
         public static Dictionary<SpellName, Spell> DefaultSpellTable = [];
         public static bool spellManagerIsLoaded = false;
 
+        public static string GetSpellObjectTypeName(SpellName name)
+        {
+            return name switch
+            {
+                SpellName.RockBlock => "StonewallObject",
+                SpellName.FlameLeash => "BurningLeashObject",
+                SpellName.SomerAssault => "SomAssaultObject",
+                SpellName.Suspend => "SuspendObjectObject",
+                _ => $"{name}Object"
+            };
+        }
+
         public static void PopulateDefaultClassAttributes()
         {
             var rng = Plugin.Randomiser;
@@ -25,17 +37,7 @@ namespace Patches.Util
 
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
-                string fullTypeName;
-                if (name == SpellName.RockBlock)
-                    fullTypeName = "StonewallObject";
-                else if (name == SpellName.FlameLeash)
-                    fullTypeName = "BurningLeashObject";
-                else if (name == SpellName.SomerAssault)
-                    fullTypeName = "SomAssaultObject";
-                else if (name == SpellName.Suspend)
-                    fullTypeName = "SustainObjectObject";
-                else
-                    fullTypeName = $"{name}Object";
+                string fullTypeName = GetSpellObjectTypeName(name);
 
                 Type spellType = AppDomain.CurrentDomain.GetAssemblies()
                     .Select(a => a.GetType(fullTypeName, false))

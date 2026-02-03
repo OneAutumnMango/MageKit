@@ -129,7 +129,6 @@ namespace BalancePatch
             _boostedHarmony = new Harmony(BoostedHarmonyId);
             PatchGroup(_boostedHarmony, typeof(Patches.Boosted.BoostedPatch));
 
-            BoostedPatch.PrintConfig();
             BoostedPatch.PopulateSpellModifierTable();
 
             BoostedLoaded = true;

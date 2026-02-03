@@ -11,6 +11,7 @@ namespace BalancePatch
 
         public static string seed = "";
         public static System.Random Randomiser;
+        public static System.Collections.Generic.List<Patches.Boosted.BoostedPatch.UpgradeOption> CurrentUpgradeOptions = [];
 
         private void Awake()
         {
@@ -81,9 +82,41 @@ namespace BalancePatch
                 }
                 else
                 {
-                    if (GUI.Button(new Rect(x2 + textW + spacing, y1, w, h), "Load Boosted"))
-                        Loader.LoadBoosted();
+                if (GUI.Button(new Rect(x2 + textW + spacing, y1, w, h), "Load Boosted"))
+                    Loader.LoadBoosted();
             // }
+
+            // ---------------- Upgrade Options ----------------
+            if (CurrentUpgradeOptions.Count > 0)
+            {
+                int upgradeX = 20;
+                int upgradeY = Screen.height / 2 - 100;
+                int optionHeight = 35;
+                int buttonWidth = 60;
+                int labelWidth = 180;
+
+                GUI.Box(new Rect(upgradeX - 5, upgradeY - 5, labelWidth + buttonWidth * 2 + 20, CurrentUpgradeOptions.Count * optionHeight + 10), "Upgrades");
+
+                for (int i = 0; i < CurrentUpgradeOptions.Count; i++)
+                {
+                    var option = CurrentUpgradeOptions[i];
+                    int yPos = upgradeY + i * optionHeight;
+
+                    GUI.Label(new Rect(upgradeX, yPos, labelWidth, 30), option.GetDisplayText());
+
+                    if (GUI.Button(new Rect(upgradeX + labelWidth, yPos, buttonWidth, 30), $"+{option.Tier.Up * 100:F0}%"))
+                    {
+                        Patches.Boosted.BoostedPatch.ApplyUpgrade(option, true);
+                        CurrentUpgradeOptions.Clear();
+                    }
+
+                    if (GUI.Button(new Rect(upgradeX + labelWidth + buttonWidth, yPos, buttonWidth, 30), $"{option.Tier.Down * 100:F0}%"))
+                    {
+                        Patches.Boosted.BoostedPatch.ApplyUpgrade(option, false);
+                        CurrentUpgradeOptions.Clear();
+                    }
+                }
+            }
             }
         }
 

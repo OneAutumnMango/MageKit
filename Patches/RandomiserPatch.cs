@@ -69,17 +69,7 @@ namespace Patches.Randomiser
         {
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
-                string fullTypeName;
-                if (name == SpellName.RockBlock)
-                    fullTypeName = "StonewallObject";
-                else if (name == SpellName.FlameLeash)
-                    fullTypeName = "BurningLeashObject";
-                else if (name == SpellName.SomerAssault)
-                    fullTypeName = "SomAssaultObject";
-                else if (name == SpellName.Suspend)
-                    fullTypeName = "SustainObjectObject";
-                else
-                    fullTypeName = $"{name}Object";
+                string fullTypeName = Util.Util.GetSpellObjectTypeName(name);
 
                 Type spellType = AppDomain.CurrentDomain.GetAssemblies()
                                     .Select(a => a.GetType(fullTypeName))
@@ -109,7 +99,7 @@ namespace Patches.Randomiser
 
             foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
-                string fullTypeName = $"{name}Object";
+                string fullTypeName = Util.Util.GetSpellObjectTypeName(name);
                 Type spellType = AppDomain.CurrentDomain.GetAssemblies()
                     .Select(a => a.GetType(fullTypeName, false))
                     .FirstOrDefault(t => t != null);
