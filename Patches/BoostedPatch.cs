@@ -60,7 +60,7 @@ namespace Patches.Boosted
 
         public static Tier GetRandom()
         {
-            double roll = Plugin.Randomiser.NextDouble();
+            double roll = Plugin.Random.NextDouble();
             if (roll < Legendary.Rate)
                 return Legendary;
             else if (roll < Rare.Rate)
@@ -141,7 +141,7 @@ namespace Patches.Boosted
                     possibleUpgrades.Add((spell, attr));
                 }
             }
-            var rng = Plugin.Randomiser;
+            var rng = Plugin.Random;
             for (int i = 0; i < count && possibleUpgrades.Count > 0; i++)
             {
                 int index = rng.Next(possibleUpgrades.Count);
@@ -206,6 +206,20 @@ namespace Patches.Boosted
                     spell.windDown = mods.windDown;
                     spell.initialVelocity = mods.initialVelocity;
                     spell.spellRadius = mods.spellRadius;
+                }
+            }
+        }
+
+        public static void ApplyModifiersToPlayer(Player player)
+        {
+            foreach (var kvp in player.cooldowns)
+            {
+                SpellName name = kvp.Key;
+                Cooldown playerCooldown = kvp.Value;
+
+                if (SpellModifierTable.TryGetValue(name, out SpellModifiers spellMods))
+                {
+                    playerCooldown.cooldown = spellMods.cooldown;
                 }
             }
         }
@@ -282,17 +296,6 @@ namespace Patches.Boosted
                 $"[RoundWatcher] CombineRoundScores → round {PlayerManager.round}"
             );
         }
-    }
-
-
-    [HarmonyPatch(typeof(PlayerManager), "AddPlayer")]
-    public static class Patch_PlayerManager_AddPlayer
-    {
-        static void Prefix(int number, InputType inputType)
-        {
-            Plugin.Log.LogInfo($"[PlayerManager] Adding Player: {number}, InputType: {inputType}");
-            Plugin.Log.LogInfo($"[PlayerManager] Current Players: {string.Join(", ", PlayerManager.players.Keys)}");
-        }
 
         private static void Postfix()
         {
@@ -307,14 +310,29 @@ namespace Patches.Boosted
                 Player player = PlayerManager.players.Values.FirstOrDefault(p => p.localPlayerNumber == 0);
                 if (player == null) return;
 
-                var options = BoostedPatch.GenerateUpgradeOptions(player, 3);
-                Plugin.CurrentUpgradeOptions = options;
+                BoostedPatch.ApplyModifiersToPlayer(player);  // update player cooldowns
+
+                var options = BoostedPatch.GenerateUpgradeOptions(player, 5);
+                Plugin.CurrentUpgradeOptions.Clear();
+                Plugin.CurrentUpgradeOptions.AddRange(options);  // thread safe
+
                 Plugin.Log.LogInfo($"[RoundWatcher] Generated {options.Count} upgrade options:");
                 foreach (var opt in options)
                 {
                     Plugin.Log.LogInfo($"  {opt.GetDisplayText()}: +{opt.Tier.Up * 100:F0}% / {opt.Tier.Down * 100:F0}%");
                 }
             }
+        }
+    }
+
+
+    [HarmonyPatch(typeof(PlayerManager), "AddPlayer")]
+    public static class Patch_PlayerManager_AddPlayer
+    {
+        static void Prefix(int number, InputType inputType)
+        {
+            Plugin.Log.LogInfo($"[PlayerManager] Adding Player: {number}, InputType: {inputType}");
+            Plugin.Log.LogInfo($"[PlayerManager] Current Players: {string.Join(", ", PlayerManager.players.Keys)}");
         }
     }
 }

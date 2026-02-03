@@ -11,6 +11,7 @@ namespace BalancePatch
 
         public static string seed = "";
         public static System.Random Randomiser;
+        public static System.Random Random = new();
         public static System.Collections.Generic.List<Patches.Boosted.BoostedPatch.UpgradeOption> CurrentUpgradeOptions = [];
 
         private void Awake()
@@ -18,7 +19,6 @@ namespace BalancePatch
             Log = Logger;
             Log.LogInfo("Balance Patch loaded");
 
-            Loader.LoadBalance();
             Loader.LoadUtil();
         }
 
@@ -75,20 +75,22 @@ namespace BalancePatch
 
             // if (Loader.SpellManagerLoaded())
             // {
-                if (Loader.BoostedLoaded)
-                {
-                    if (GUI.Button(new Rect(x2 + textW + spacing, y1, w, h), "Unload Boosted"))
-                        Loader.UnloadBoosted();
-                }
-                else
-                {
+            if (Loader.BoostedLoaded)
+            {
+                if (GUI.Button(new Rect(x2 + textW + spacing, y1, w, h), "Unload Boosted"))
+                    Loader.UnloadBoosted();
+            }
+            else
+            {
                 if (GUI.Button(new Rect(x2 + textW + spacing, y1, w, h), "Load Boosted"))
                     Loader.LoadBoosted();
+            }
             // }
 
             // ---------------- Upgrade Options ----------------
             if (CurrentUpgradeOptions.Count > 0)
             {
+                Log.LogInfo($"[Plugin] Displaying {CurrentUpgradeOptions.Count} upgrade options");
                 int upgradeX = 20;
                 int upgradeY = Screen.height / 2 - 100;
                 int optionHeight = 35;
@@ -116,7 +118,6 @@ namespace BalancePatch
                         CurrentUpgradeOptions.Clear();
                     }
                 }
-            }
             }
         }
 
