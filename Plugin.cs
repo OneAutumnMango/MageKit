@@ -22,7 +22,6 @@ namespace BalancePatch
             Log.LogInfo("Balance Patch loaded");
 
             Loader.LoadUtil();
-            InitColors();
         }
 
         private void OnGUI()
@@ -34,6 +33,8 @@ namespace BalancePatch
             int x = 20;
             int y1 = 20;
             int y2 = 55;
+
+            InitColors();
 
             // ---------------- Balance ----------------
             if (!Loader.BalanceLoaded)

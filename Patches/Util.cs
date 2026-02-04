@@ -15,11 +15,11 @@ namespace Patches.Util
         public static Dictionary<SpellName, Dictionary<string, float>> DefaultClassAttributes = [];
         public static Dictionary<SpellName, Spell> DefaultSpellTable = [];
         public static bool spellManagerIsLoaded = false;
-        public static SpellManager mgr;
+        // public static SpellManager mgr;
 
         static void Postfix(SpellManager __instance)
         {
-            mgr = __instance ?? Globals.spell_manager;
+            SpellManager mgr = __instance ?? Globals.spell_manager;
             if (mgr == null || mgr.spell_table == null) return;
 
             Plugin.Log.LogInfo("SpellManager is loaded.");

@@ -6,6 +6,7 @@ using BalancePatch;
 using System;
 using System.Linq;
 using Patches.Util;
+using System.Drawing.Printing;
 
 
 namespace Patches.Boosted
@@ -51,8 +52,7 @@ namespace Patches.Boosted
             }
         }
 
-        // public static readonly Tier Common = new(1.00f, 0.25f, -0.10f);
-        public static readonly Tier Common = new(1.00f, 3f, -0.70f);
+        public static readonly Tier Common = new(1.00f, 0.25f, -0.10f);
         public static readonly Tier Rare = new(0.25f, 0.50f, -0.20f);
         public static readonly Tier Legendary = new(0.05f, 0.75f, -0.30f);
 
@@ -154,8 +154,25 @@ namespace Patches.Boosted
         public static void ApplyUpgrade(UpgradeOption option, bool isPositive)
         {
             ApplyTier(option.Spell, option.Attribute, option.Tier, isPositive);
+
+            ApplyModifiers(Globals.spell_manager, PlayerManager.players.Values.FirstOrDefault(p => p.localPlayerNumber == 0));
+
             float change = isPositive ? option.Tier.Up : option.Tier.Down;
             Plugin.Log.LogInfo($"[BoostedPatch] Applied {(isPositive ? "+" : "")}{change * 100:F0}% to {option.GetDisplayText()}");
+        }
+
+        private static bool TryGetDefaultValueFromSpellTable(SpellName name, string attribute, out float value)
+        {
+            value = 0;
+            if (!Util.Util.DefaultSpellTable.TryGetValue(name, out var spell)) return false;
+
+            var prop = typeof(Spell).GetProperty(attribute);
+            if (prop?.GetValue(spell) is float val)
+            {
+                value = val;
+                return true;
+            }
+            return false;
         }
 
         public static List<UpgradeOption> GenerateUpgradeOptions(Player player, int count = 3)
@@ -178,17 +195,16 @@ namespace Patches.Boosted
                 int index = rng.Next(possibleUpgrades.Count);
                 var (spell, attr) = possibleUpgrades[index];
                 possibleUpgrades.RemoveAt(index);
-                UpgradeOption option = new UpgradeOption
+
+                if (TryGetDefaultValueFromSpellTable(spell, attr, out float defaultValue) && defaultValue == 0)  // if attribute is 0 ignore it
+                    continue;
+
+                options.Add(new UpgradeOption
                 {
                     Spell = spell,
                     Attribute = attr,
                     Tier = Upgrades.GetRandom()
-                };
-
-                if (TryGetMultFromOption(option, out float mult) && mult == 0)
-                    continue;
-
-                options.Add(option);
+                });
             }
             return options;
         }
@@ -197,7 +213,6 @@ namespace Patches.Boosted
         {
             foreach (SpellName name in Util.Util.DefaultSpellTable.Keys)
             {
-                Plugin.Log.LogInfo($"[BoostedPatch] Populating modifiers for {name}");
                 var spell = Util.Util.DefaultSpellTable[name];
                 var classAttrs = Util.Util.DefaultClassAttributes[name];
 
@@ -216,7 +231,7 @@ namespace Patches.Boosted
             }
         }
 
-        public static void ApplyModifiersToSpellTable(SpellManager spellManager)
+        private static void ApplyModifiersToSpellTable(SpellManager spellManager)
         {
             foreach (var kvp in SpellModifierTable)
             {
@@ -234,7 +249,7 @@ namespace Patches.Boosted
             }
         }
 
-        public static void ApplyModifiersToPlayer(Player player)
+        private static void ApplyModifiersToPlayer(Player player)
         {
             foreach (var kvp in player.cooldowns)
             {
@@ -247,6 +262,13 @@ namespace Patches.Boosted
                 }
             }
         }
+
+        public static void ApplyModifiers(SpellManager spellManager, Player player)
+        {
+            ApplyModifiersToSpellTable(spellManager);
+            ApplyModifiersToPlayer(player);
+        }
+
 
         public static void PatchAllSpellObjects(Harmony harmony)
         {
@@ -280,7 +302,6 @@ namespace Patches.Boosted
 
             BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-            Plugin.Log.LogInfo($"[BoostedPatch] Patching SpellObject {t.Name} with modifiers: dmg: {mods.DAMAGE}, rad: {mods.RADIUS}, pow: {mods.POWER}, y_pow: {mods.Y_POWER}");
             t.GetField("DAMAGE" , flags)?.SetValue(__instance, (float)mods.DAMAGE);
             t.GetField("RADIUS" , flags)?.SetValue(__instance, (float)mods.RADIUS);
             t.GetField("POWER"  , flags)?.SetValue(__instance, (float)mods.POWER);
@@ -310,18 +331,18 @@ namespace Patches.Boosted
 
         private static void Postfix()
         {
-            if (Util.Util.mgr != null)
-            {
-                BoostedPatch.ApplyModifiersToSpellTable(Util.Util.mgr);
-                Plugin.Log.LogInfo("[RoundWatcher] Applied spell modifiers to spell table");
-            }
+            // if (Util.Util.mgr != null)
+            // {
+            //     BoostedPatch.ApplyModifiersToSpellTable(Util.Util.mgr);
+            //     Plugin.Log.LogInfo("[RoundWatcher] Applied spell modifiers to spell table");
+            // }
 
             if (PlayerManager.round > 0)
             {
                 Player player = PlayerManager.players.Values.FirstOrDefault(p => p.localPlayerNumber == 0);
                 if (player == null) return;
 
-                BoostedPatch.ApplyModifiersToPlayer(player);  // update player cooldowns
+                // BoostedPatch.ApplyModifiersToPlayer(player);  // update player cooldowns
 
                 var options = BoostedPatch.GenerateUpgradeOptions(player, BoostedPatch.numUpgradesPerRound);
                 Plugin.CurrentUpgradeOptions.Clear();
