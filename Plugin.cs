@@ -18,6 +18,8 @@ namespace BalancePatch
 
         private int upgradesSelected = 0;
         private int MaxUpgrades = 3;
+        private bool showSpellManagerError = false;
+
 
         private void Awake()
         {
@@ -80,8 +82,6 @@ namespace BalancePatch
             // Restore GUI
             GUI.enabled = true;
 
-            // if (Loader.SpellManagerLoaded())
-            // {
             if (Loader.BoostedLoaded)
             {
                 if (GUI.Button(new Rect(x2 + textW + spacing, y1, w, h), "Unload Boosted"))
@@ -89,15 +89,40 @@ namespace BalancePatch
             }
             else
             {
-                // if (Loader.BoostedWaiting)
-                // {
-                //     GUI.Label(new Rect(x2 + textW + spacing, y1, w, h), "Waiting for SpellManager");
-                // }
-                // else
                 if (GUI.Button(new Rect(x2 + textW + spacing, y1, w, h), "Load Boosted"))
-                    Loader.LoadBoosted();
+                {
+                    if (!Loader.SpellManagerLoaded())
+                    {
+                        showSpellManagerError = true;
+                    }
+                    else
+                    {
+                        showSpellManagerError = false;
+                        Loader.LoadBoosted();
+                    }
+                }
             }
-            // }
+            if (showSpellManagerError)
+            {
+                string message;
+                GUIStyle color;
+                if (!Loader.SpellManagerLoaded())
+                {
+                    message = "SpellManager not loaded.\nWait until a game starts.";
+                    color = Red;
+                }
+                else
+                {
+                    message = "SpellManager loaded.\nPress 'Load Boosted' now.";
+                    color = Green;
+                }
+
+                GUI.Label(
+                    new Rect(x2 + textW + spacing*2 + w, y1, 170, h * 2),
+                    message,
+                    color
+                );
+            }
 
             // ---------------- Upgrade Options ----------------
             if (CurrentUpgradeOptions.Count > 0)

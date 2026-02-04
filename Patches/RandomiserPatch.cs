@@ -14,12 +14,11 @@ namespace Patches.Randomiser
     [HarmonyPatch(typeof(SpellManager), "Awake")]
     public static class Patch_SpellManager_Randomiser
     {
-        public static SpellManager mgr;
         private static readonly float bound = 1.6f;
 
         static void Postfix(SpellManager __instance)
         {
-            mgr = __instance ?? Globals.spell_manager;
+            SpellManager mgr = __instance ?? Globals.spell_manager;
             if (mgr == null || mgr.spell_table == null) return;
 
             System.Random rng = Plugin.Randomiser;

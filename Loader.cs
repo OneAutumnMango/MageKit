@@ -4,8 +4,7 @@ using Patches.Boosted;
 using Patches.Util;
 using System;
 using System.Reflection;
-using UnityEngine;
-using System.Threading;
+
 
 namespace BalancePatch
 {
@@ -144,6 +143,8 @@ namespace BalancePatch
         public static void UnloadBoosted()
         {
             if (!BoostedLoaded) return;
+
+            BoostedPatch.ResetSpellModifierTableMults();
 
             _boostedHarmony.UnpatchSelf();
             _boostedHarmony = null;

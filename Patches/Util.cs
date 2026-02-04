@@ -4,8 +4,7 @@ using System.Linq;
 using System.Reflection;
 using BalancePatch;
 using HarmonyLib;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+
 
 namespace Patches.Util
 {

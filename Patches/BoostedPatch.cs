@@ -21,6 +21,10 @@ namespace Patches.Boosted
             Base = baseValue;
             Mult = mult;
         }
+        public void ResetMultiplier()
+        {
+            Mult = 1f;
+        }
         public static implicit operator float(AttributeModifier mod) => mod.Value;
     }
     public class SpellModifiers
@@ -34,6 +38,19 @@ namespace Patches.Boosted
         public AttributeModifier windDown { get; set; }
         public AttributeModifier initialVelocity { get; set; }
         public AttributeModifier spellRadius { get; set; }
+
+        public void ResetMultipliers()
+        {
+            DAMAGE.ResetMultiplier();
+            RADIUS.ResetMultiplier();
+            POWER.ResetMultiplier();
+            Y_POWER.ResetMultiplier();
+            cooldown.ResetMultiplier();
+            windUp.ResetMultiplier();
+            windDown.ResetMultiplier();
+            initialVelocity.ResetMultiplier();
+            spellRadius.ResetMultiplier();
+        }
     }
 
     public static class Upgrades
@@ -52,8 +69,8 @@ namespace Patches.Boosted
             }
         }
 
-        public static readonly Tier Common = new(1.00f, 0.25f, -0.10f);
-        public static readonly Tier Rare = new(0.25f, 0.50f, -0.20f);
+        public static readonly Tier Common =    new(1.00f, 0.25f, -0.10f);
+        public static readonly Tier Rare =      new(0.25f, 0.50f, -0.20f);
         public static readonly Tier Legendary = new(0.05f, 0.75f, -0.30f);
 
         // Optional: array for iteration
@@ -269,6 +286,16 @@ namespace Patches.Boosted
             ApplyModifiersToPlayer(player);
         }
 
+        public static void ResetSpellModifierTableMults()
+        {
+            foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
+            {
+                if (SpellModifierTable.TryGetValue(name, out SpellModifiers mods))
+                {
+                    mods.ResetMultipliers();
+                }
+            }
+        }
 
         public static void PatchAllSpellObjects(Harmony harmony)
         {

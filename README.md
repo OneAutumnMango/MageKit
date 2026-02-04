@@ -27,11 +27,20 @@ BalancePatch mirror: https://www.nexusmods.com/magequit/mods/2
 3. Click `Randomise`
 4. Enter into a game.
 
-
 #### IMPORTANT!! Make sure to reach this before playing:
 - You must randomise BEFORE entering a game.
 - Ensure EVERYONE you're playing with uses the same seed.
 - Once randomised you have to quit MageQuit to randomise again.
+
+## How to Use Boosted (New Gamemode!)
+
+1. Launch the game (after install)
+2. Enter into a game.
+3. Click `Load Boosted` (DO NOT DO THIS BEFORE OPENING A GAME)
+
+BTW these changes persist so to play a new round you have to quit and restart the game.
+This mode is not compatible with the Randomiser.
+
 
 
 ## Changes:
@@ -71,6 +80,17 @@ Added a randomiser to randomise the following:
 - Damage
 - Hitbox Radius
 - X and Y Knockback
+
+**Boosted**:
+
+This is a new gamemode where every round you get offered 10 choices to upgrade your spells.
+You may select 3 of them.
+
+You can choose to increase or decrease attributes. (Green increase, Red decrease)
+You may want to choose decrease for attributes like cooldown or animation windup.
+
+This mode can be used with the Balance patch but some things may not work. e.g. Geyser winddown might not update according to this patch.
+
 
 **Debugging**:
 
