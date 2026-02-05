@@ -38,9 +38,9 @@ BalancePatch mirror: https://www.nexusmods.com/magequit/mods/2
 2. Enter into a game.
 3. Click `Load Boosted` (DO NOT DO THIS BEFORE OPENING A GAME)
 
-BTW these changes persist so to play a new round you have to quit and restart the game.
-This mode is not compatible with the Randomiser.
+To play a new game after having played one already, click `Unload Boosted` then once youre in the picking screen of the next game `Load Boosted`.
 
+This mode is NOT compatible with the Randomiser.
 
 
 ## Changes:

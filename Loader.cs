@@ -145,6 +145,7 @@ namespace BalancePatch
             if (!BoostedLoaded) return;
 
             BoostedPatch.ResetSpellModifierTableMults();
+            Plugin.CurrentUpgradeOptions.Clear();
 
             _boostedHarmony.UnpatchSelf();
             _boostedHarmony = null;
