@@ -199,7 +199,10 @@ namespace Patches.Boosted
             {
                 foreach (var attr in allAttributes)
                 {
-                    possibleUpgrades.Add((spell, attr));
+                    if (!Plugin.BannedUpgrades.Contains((spell, attr)))
+                    {
+                        possibleUpgrades.Add((spell, attr));
+                    }
                 }
             }
             var rng = Plugin.Random;

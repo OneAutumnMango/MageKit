@@ -13,6 +13,8 @@ namespace BalancePatch
         public static System.Random Randomiser;
         public static System.Random Random = new();
         public static System.Collections.Generic.List<Patches.Boosted.BoostedPatch.UpgradeOption> CurrentUpgradeOptions = [];
+        public static System.Collections.Generic.HashSet<(SpellName, string)> BannedUpgrades = [];
+
 
         private static GUIStyle Green, Red;
 
@@ -130,10 +132,11 @@ namespace BalancePatch
                 int upgradeX = 20;
                 int upgradeY = Screen.height / 2 - 100;
                 int optionHeight = 35;
-                int buttonWidth = 60;
+                int buttonWidth = 50;
                 int labelWidth = 180;
+                int banButtonWidth = 40;
 
-                GUI.Box(new Rect(upgradeX - 5, upgradeY - 5, labelWidth + buttonWidth * 2 + 20, CurrentUpgradeOptions.Count * optionHeight + 10), "Upgrades");
+                GUI.Box(new Rect(upgradeX - 5, upgradeY - 20, labelWidth + buttonWidth * 2 + banButtonWidth + 15, CurrentUpgradeOptions.Count * optionHeight + 20), "Upgrades");
 
                 for (int i = 0; i < CurrentUpgradeOptions.Count; i++)
                 {
@@ -153,6 +156,11 @@ namespace BalancePatch
                     if (GUI.Button(new Rect(upgradeX + labelWidth + buttonWidth, yPos, buttonWidth, 30), $"{downMult * 100:F0}%", Red))
                     {
                         SelectUpgrade(option, false);
+                    }
+
+                    if (GUI.Button(new Rect(upgradeX + labelWidth + buttonWidth * 2 + 5, yPos, banButtonWidth, 30), "Ban"))
+                    {
+                        BanUpgrade(option);
                     }
                 }
             }
@@ -190,6 +198,13 @@ namespace BalancePatch
             }
         }
 
+        void BanUpgrade(Patches.Boosted.BoostedPatch.UpgradeOption option)
+        {
+            BannedUpgrades.Add((option.Spell, option.Attribute));
+            CurrentUpgradeOptions.Remove(option);
+            upgradesSelected++;
+            Log.LogInfo($"Banned: {option.Spell} + {option.Attribute}");
+        }
 
         private static void InitColors()
         {
