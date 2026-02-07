@@ -27,7 +27,7 @@ namespace Patches.Randomiser
             {
                 if (mgr.spell_table.TryGetValue(name, out Spell spell))
                 {
-                    Plugin.Log.LogInfo($"[Randomiser] Patching {name}");
+                    Plugin.Log.LogInfo($"[Randomiser.Postfix] Patching {name}");
 
                     Func<float, float> tweakFunc =
                         spell.spellButton == SpellButton.Primary
@@ -59,7 +59,7 @@ namespace Patches.Randomiser
                 if (original == 0f)
                     original += 0.1f;  // surely have some fun
                 value = original + (float)((rng.NextDouble() * 2 - 1) * rareMultiplier * original); // big deviation
-                Plugin.Log.LogInfo($"[RandomTweak] {original:F2} -> {Math.Max(0.1f * original, value):F2}");
+                Plugin.Log.LogInfo($"[Randomiser.RandomTweak] {original:F2} -> {Math.Max(0.1f * original, value):F2}");
             }
             return Math.Max(0.1f * original, value);
         }
@@ -122,7 +122,7 @@ namespace Patches.Randomiser
                         if (fieldName == "RADIUS")
                             tweaked = Mathf.Clamp(tweaked, original / bound, original * bound);
 
-                        Plugin.Log.LogInfo($"[AwkwardRandomiser] {fieldName} {original} -> {tweaked}");
+                        Plugin.Log.LogInfo($"[Randomiser.PrecomputeSpellAttributes] {fieldName} {original} -> {tweaked}");
                         values[fieldName] = tweaked;
                     }
                 }

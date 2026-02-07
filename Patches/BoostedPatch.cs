@@ -175,7 +175,7 @@ namespace Patches.Boosted
             ApplyModifiers(Globals.spell_manager, PlayerManager.players.Values.FirstOrDefault(p => p.localPlayerNumber == 0));
 
             float change = isPositive ? option.Tier.Up : option.Tier.Down;
-            Plugin.Log.LogInfo($"[BoostedPatch] Applied {(isPositive ? "+" : "")}{change * 100:F0}% to {option.GetDisplayText()}");
+            Plugin.Log.LogInfo($"[BoostedPatch.ApplyUpgrade] Applied {(isPositive ? "+" : "")}{change * 100:F0}% to {option.GetDisplayText()}");
         }
 
         private static bool TryGetDefaultValueFromSpellTable(SpellName name, string attribute, out float value)
@@ -215,11 +215,12 @@ namespace Patches.Boosted
 
                 if (TryGetDefaultValueFromSpellTable(spell, attr, out float defaultValue) && defaultValue == 0)  // if attribute is 0 ignore it
                 {
+                    Plugin.Log.LogInfo($"[BoostedPatch.GenerateUpgradeOptions] Ignoring {spell} {attr} because it is 0");
                     i--;
                     continue;
                 }
 
-                    options.Add(new UpgradeOption
+                options.Add(new UpgradeOption
                 {
                     Spell = spell,
                     Attribute = attr,
@@ -309,10 +310,18 @@ namespace Patches.Boosted
                     .Select(a => a.GetType(fullTypeName))
                     .FirstOrDefault(t => t != null);
 
-                if (spellType == null) continue;
+                if (spellType == null)
+                {
+                    Plugin.Log.LogWarning("[BoostedPatch.PatchAllSpellObjects] No spell object found for spell: " + name);
+                    continue;
+                }
 
                 MethodInfo initMethod = spellType.GetMethod("Init", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (initMethod == null) continue;
+                if (initMethod == null)
+                {
+                    Plugin.Log.LogWarning("[BoostedPatch.PatchAllSpellObjects] No Init method found for spell: " + name);
+                    continue;
+                }
 
                 MethodInfo prefixMethod = typeof(BoostedPatch).GetMethod(
                     nameof(Prefix_SpellObjectInit),
@@ -328,7 +337,11 @@ namespace Patches.Boosted
             Type t = __instance.GetType();
             var matchedSpell = Util.Util.GetSpellNameFromTypeName(t.Name);
 
-            if (!SpellModifierTable.TryGetValue(matchedSpell.Value, out var mods)) return;
+            if (!SpellModifierTable.TryGetValue(matchedSpell.Value, out var mods))
+            {
+                Plugin.Log.LogWarning("[BoostedPatch.Prefix_SpellObjectInit] No spell modifiers found for spell: " + matchedSpell);
+                return;
+            }
 
             BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -355,7 +368,7 @@ namespace Patches.Boosted
         private static void Prefix()
         {
             Plugin.Log.LogInfo(
-                $"[RoundWatcher] CombineRoundScores → round {PlayerManager.round}"
+                $"[NetworkManager.CombineRoundScores] round {PlayerManager.round}"
             );
         }
 
@@ -364,13 +377,17 @@ namespace Patches.Boosted
             // if (Util.Util.mgr != null)
             // {
             //     BoostedPatch.ApplyModifiersToSpellTable(Util.Util.mgr);
-            //     Plugin.Log.LogInfo("[RoundWatcher] Applied spell modifiers to spell table");
+            //     Plugin.Log.LogInfo("[NetworkManager.CombineRoundScores] Applied spell modifiers to spell table");
             // }
 
             if (PlayerManager.round > 0)
             {
                 Player player = PlayerManager.players.Values.FirstOrDefault(p => p.localPlayerNumber == 0);
-                if (player == null) return;
+                if (player == null)
+                {
+                    Plugin.Log.LogError("[NetworkManager.CombineRoundScores] No local player found");
+                    return;
+                }
 
                 // BoostedPatch.ApplyModifiersToPlayer(player);  // update player cooldowns
 
@@ -378,7 +395,7 @@ namespace Patches.Boosted
                 Plugin.CurrentUpgradeOptions.Clear();
                 Plugin.CurrentUpgradeOptions.AddRange(options);  // thread safe
 
-                Plugin.Log.LogInfo($"[RoundWatcher] Generated {options.Count} upgrade options:");
+                Plugin.Log.LogInfo($"[NetworkManager.CombineRoundScores] Generated {options.Count} upgrade options:");
                 foreach (var opt in options)
                 {
                     Plugin.Log.LogInfo($"  {opt.GetDisplayText()}: +{opt.Tier.Up * 100:F0}% / {opt.Tier.Down * 100:F0}%");
@@ -393,8 +410,8 @@ namespace Patches.Boosted
     {
         static void Prefix(int number, InputType inputType)
         {
-            Plugin.Log.LogInfo($"[PlayerManager] Adding Player: {number}, InputType: {inputType}");
-            Plugin.Log.LogInfo($"[PlayerManager] Current Players: {string.Join(", ", PlayerManager.players.Keys)}");
+            Plugin.Log.LogInfo($"[PlayerManager.AddPlayer] Adding Player: {number}, InputType: {inputType}");
+            Plugin.Log.LogInfo($"[PlayerManager.AddPlayer] Current Players: {string.Join(", ", PlayerManager.players.Keys)}");
         }
     }
 }

@@ -73,7 +73,7 @@ namespace Patches.Balance
                     break;
 
                 case 37:  // sustain
-                    damage = 5f;
+                    damage *= 1.6f;
                     break;
 
                 case 13:  // ignite
