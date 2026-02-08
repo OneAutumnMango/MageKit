@@ -68,7 +68,7 @@ This mode is NOT compatible with the Randomiser.
 - BullRush: cooldown increased from 12s → 13s
 - Hinder: slow reduced from 50% → 35%
 - Echo: cooldown reduced from 5.5s → 5s
-- Wormhole: Gives 1.8x movespeed for 5s instead of previous
+- Wormhole: Gives 1.8x movespeed for 5s instead of previous, 9s cooldown
 
 **Randomiser**:
 
@@ -88,6 +88,9 @@ You may select 3 of them.
 
 You can choose to increase or decrease attributes. (Green increase, Red decrease)
 You may want to choose decrease for attributes like cooldown or animation windup.
+
+You may choose to ban an upgrade instead to never get it again.
+You get one free ban a round.
 
 This mode can be used with the Balance patch but some things may not work. e.g. Geyser winddown might not update according to this patch.
 

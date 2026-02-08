@@ -1,12 +1,9 @@
 using HarmonyLib;
-using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
 using BalancePatch;
 using System;
 using System.Linq;
-using Patches.Util;
-using System.Drawing.Printing;
 
 
 namespace Patches.Boosted
@@ -67,7 +64,7 @@ namespace Patches.Boosted
 
             public bool Equals(Tier tier) => tier.Rate == Rate;
             public override bool Equals(object obj) => obj is Tier tier && Equals(tier);
-            public override int GetHashCode() => 0;  // fuck warning CS0659, replace if using in collections 
+            public override int GetHashCode() => 0;  // fuck warning CS0659, replace if using in collections
         }
 
         public static readonly Tier Common =    new(1.00f, 0.25f, -0.10f);
@@ -93,7 +90,6 @@ namespace Patches.Boosted
     {
         private static readonly string[] ClassAttributeKeys = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
         private static readonly string[] SpellTableKeys = ["cooldown", "windUp", "windDown", "initialVelocity"];
-        // private static Dictionary<SpellName, Dictionary<String, Dictionary<String, float>>> SpellModifierTable = [];
         public static Dictionary<SpellName, SpellModifiers> SpellModifierTable = [];
         public static int numUpgradesPerRound = 10;
 
@@ -323,7 +319,7 @@ namespace Patches.Boosted
 
                     for (int i = 0; i < spell.additionalCasts.Length; i++)
                     {
-                        spell.additionalCasts[i].cooldown = mods.cooldown;
+                        spell.additionalCasts[i].cooldown = Util.Util.DefaultSpellTable[name].additionalCasts[i].cooldown * mods.cooldown.Mult;
                     }
                 }
             }
@@ -345,7 +341,7 @@ namespace Patches.Boosted
 
                     for (int i = 0; i < playerCooldown.subCooldowns.Length; i++)
                     {
-                        playerCooldown.subCooldowns[i].cooldown = spellMods.cooldown;
+                        playerCooldown.subCooldowns[i].cooldown = Util.Util.DefaultSpellTable[name].additionalCasts[i].cooldown * spellMods.cooldown.Mult;
                     }
                 }
             }

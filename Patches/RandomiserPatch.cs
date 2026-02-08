@@ -23,7 +23,7 @@ namespace Patches.Randomiser
 
             System.Random rng = Plugin.Randomiser;
 
-            foreach (SpellName name in SpellName.GetValues(typeof(SpellName)))
+            foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
             {
                 if (mgr.spell_table.TryGetValue(name, out Spell spell))
                 {

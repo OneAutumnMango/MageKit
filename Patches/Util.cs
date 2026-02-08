@@ -26,6 +26,19 @@ namespace Patches.Util
 
             Plugin.Log.LogInfo("Populating default spell table.");
             DefaultSpellTable = mgr.spell_table.ToDictionary(kvp => kvp.Key, kvp => new Spell(kvp.Value));
+
+            // foreach (SpellName name in Enum.GetValues(typeof(SpellName)))
+            // {
+            //     Spell spell = mgr.spell_table[name];
+            //     Plugin.Log.LogInfo($"name: {name}, cooldown: {spell.cooldown}");
+            //     if (spell.additionalCasts != null)
+            //     {
+            //         for (int i = 0; i < spell.additionalCasts.Length; i++)
+            //         {
+            //             Plugin.Log.LogInfo($"additionalCasts[{i}].cooldown: {spell.additionalCasts[i].cooldown}");
+            //         }
+            //     }
+            // }
         }
 
 
