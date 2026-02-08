@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
+using LowPolyWaterv2Demo;
 using UnityEngine;
 
 namespace BalancePatch
@@ -17,10 +18,13 @@ namespace BalancePatch
 
 
         private static GUIStyle Green, Red;
+        private static GUIStyle CommonStyle, RareStyle, LegendaryStyle;
+
 
         private int upgradesSelected = 0;
-        private int MaxUpgrades = 3;
+        private readonly int MaxUpgrades = 3;
         private bool showSpellManagerError = false;
+        private int freeBans = 1;  // per round
 
 
         private void Awake()
@@ -143,7 +147,7 @@ namespace BalancePatch
                     var option = CurrentUpgradeOptions[i];
                     int yPos = upgradeY + i * optionHeight;
 
-                    GUI.Label(new Rect(upgradeX, yPos, labelWidth, 30), option.GetDisplayText());
+                    GUI.Label(new Rect(upgradeX, yPos, labelWidth, 30), option.GetDisplayText(), GetTierStyle(option.Tier));
 
                     if (!Patches.Boosted.BoostedPatch.TryGetUpDownMultFromOption(option, out float upMult, out float downMult))
                         continue;
@@ -188,22 +192,32 @@ namespace BalancePatch
             Patches.Boosted.BoostedPatch.ApplyUpgrade(option, isUp);
             upgradesSelected++;
 
-            // Optional: prevent selecting the same upgrade again
             CurrentUpgradeOptions.Remove(option);
 
-            if (upgradesSelected >= MaxUpgrades)
-            {
-                CurrentUpgradeOptions.Clear();
-                upgradesSelected = 0; // reset for next time
-            }
+            MaybeResetUpgrades();
         }
 
         void BanUpgrade(Patches.Boosted.BoostedPatch.UpgradeOption option)
         {
-            BannedUpgrades.Add((option.Spell, option.Attribute));
-            CurrentUpgradeOptions.Remove(option);
-            upgradesSelected++;
             Log.LogInfo($"Banned: {option.Spell} + {option.Attribute}");
+            BannedUpgrades.Add((option.Spell, option.Attribute));
+
+            CurrentUpgradeOptions.Remove(option);
+
+            if (freeBans <= 0)
+                upgradesSelected++;
+            else
+                freeBans--;
+
+            MaybeResetUpgrades();
+        }
+
+        void MaybeResetUpgrades()
+        {
+            if (upgradesSelected < MaxUpgrades) return;
+            CurrentUpgradeOptions.Clear();
+            upgradesSelected = 0; // reset for next time
+            freeBans = 1;
         }
 
         private static void InitColors()
@@ -212,16 +226,36 @@ namespace BalancePatch
             Color downColor = new(0.9f, 0.3f, 0.3f);
 
             Green = new GUIStyle(GUI.skin.button);
-            Green.normal.textColor  = upColor;
-            Green.hover.textColor   = upColor;
-            Green.active.textColor  = upColor;
+            Green.normal.textColor = upColor;
+            Green.hover.textColor = upColor;
+            Green.active.textColor = upColor;
             Green.focused.textColor = upColor;
 
             Red = new GUIStyle(GUI.skin.button);
-            Red.normal.textColor  = downColor;
-            Red.hover.textColor   = downColor;
-            Red.active.textColor  = downColor;
+            Red.normal.textColor = downColor;
+            Red.hover.textColor = downColor;
+            Red.active.textColor = downColor;
             Red.focused.textColor = downColor;
+
+            CommonStyle = new GUIStyle(GUI.skin.label);
+
+            RareStyle = new GUIStyle(GUI.skin.label);
+            RareStyle.normal.textColor = new Color(0.75f, 0.4f, 0.9f); // purple
+
+            LegendaryStyle = new GUIStyle(GUI.skin.label);
+            LegendaryStyle.normal.textColor = new Color(1.0f, 0.82f, 0.2f); // gold
         }
+        
+        private static GUIStyle GetTierStyle(Patches.Boosted.Upgrades.Tier tier)
+        {
+            if (tier.Equals(Patches.Boosted.Upgrades.Legendary))
+                return LegendaryStyle;
+
+            if (tier.Equals(Patches.Boosted.Upgrades.Rare))
+                return RareStyle;
+
+            return CommonStyle;
+        }
+
     }
 }

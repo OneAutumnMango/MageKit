@@ -59,7 +59,7 @@ This mode is NOT compatible with the Randomiser.
 - Flame Leap: reduced hitbox offset, cooldown increased from 11s → 12s
 - Flashflood: removed refresh effect
 - Geyser: shorter animation
-- Sommar Assault: increase radius from 4 → 5
+- Somar Assault: increase radius from 4 → 5
 - Bombshell: turtle speed increased by 25%
 - Tsunami: speed increased by 15%
 - Icepack: dogs 20% slower
@@ -68,6 +68,7 @@ This mode is NOT compatible with the Randomiser.
 - BullRush: cooldown increased from 12s → 13s
 - Hinder: slow reduced from 50% → 35%
 - Echo: cooldown reduced from 5.5s → 5s
+- Wormhole: Gives 1.8x movespeed for 5s instead of previous
 
 **Randomiser**:
 

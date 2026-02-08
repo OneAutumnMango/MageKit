@@ -64,6 +64,10 @@ namespace Patches.Boosted
                 Up = up;
                 Down = down;
             }
+
+            public bool Equals(Tier tier) => tier.Rate == Rate;
+            public override bool Equals(object obj) => obj is Tier tier && Equals(tier);
+            public override int GetHashCode() => 0;  // fuck warning CS0659, replace if using in collections 
         }
 
         public static readonly Tier Common =    new(1.00f, 0.25f, -0.10f);
@@ -71,7 +75,7 @@ namespace Patches.Boosted
         public static readonly Tier Legendary = new(0.05f, 0.75f, -0.30f);
 
         // Optional: array for iteration
-        public static readonly Tier[] AllTiers = { Common, Rare, Legendary };
+        public static readonly Tier[] AllTiers = [Common, Rare, Legendary];
 
         public static Tier GetRandom()
         {
@@ -188,42 +192,85 @@ namespace Patches.Boosted
             return false;
         }
 
+        private static bool TryGetMultFromSpellTable(SpellName name, string attribute, out float value)
+        {
+            value = 0;
+            if (!SpellModifierTable.TryGetValue(name, out var spellModifier)) return false;
+
+            var prop = typeof(SpellModifiers).GetProperty(attribute);
+            if (prop?.GetValue(spellModifier) is AttributeModifier attrMod)
+            {
+                value = attrMod.Mult;
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsUpgradeAllowed(SpellName spellName, string attribute)
+        {
+            bool Reject(string reason)
+            {
+                Plugin.Log.LogInfo($"[BoostedPatch.ShouldRejectUpgrade] Rejecting {spellName} {attribute}: {reason}");
+                return false;
+            }
+
+            if (Plugin.BannedUpgrades.Contains((spellName, attribute)))
+                return Reject("banned");
+
+            if (TryGetDefaultValueFromSpellTable(spellName, attribute, out float defaultValue) && defaultValue == 0)
+                return Reject("default value is 0");
+
+            TryGetMultFromSpellTable(spellName, attribute, out float mult);
+
+            if (attribute == "cooldown" && mult <= 0.5f)
+                return Reject("cooldown multiplier too low");
+
+            // primary specific
+            if (!Globals.spell_manager.spell_table.TryGetValue(spellName, out Spell spell))
+                return true;
+
+            if (spell.spellButton != SpellButton.Primary)
+                return true;
+
+            if (attribute == "cooldown" && mult <= 0.7f)
+                return Reject("primary cooldown too low");
+
+            if ((attribute == "DAMAGE" ||
+                 attribute == "POWER" ||
+                 attribute == "initialVelocity") && mult >= 2f)
+                return Reject("primary stat multiplier too high");
+
+            return true;
+        }
+
         public static List<UpgradeOption> GenerateUpgradeOptions(Player player, int count = 3)
         {
             var options = new List<UpgradeOption>();
             var spells = GetPlayerSpells(player);
+
             if (spells.Count == 0) return options;
+
             var allAttributes = ClassAttributeKeys.Concat(SpellTableKeys).ToArray();
             var possibleUpgrades = new List<(SpellName spell, string attr)>();
+
             foreach (var spell in spells)
             {
                 if (Loader.BalanceLoaded && spell == SpellName.Wormhole) continue;  // ignore wormhole if balance patch loaded
                 foreach (var attr in allAttributes)
                 {
-                    if (!Plugin.BannedUpgrades.Contains((spell, attr)))
-                    {
-                        possibleUpgrades.Add((spell, attr));
-                    }
+                    if (!IsUpgradeAllowed(spell, attr))
+                        continue;
+
+                    possibleUpgrades.Add((spell, attr));
                 }
             }
+
             var rng = Plugin.Random;
             for (int i = 0; i < count && possibleUpgrades.Count > 0; i++)
             {
                 int index = rng.Next(possibleUpgrades.Count);
                 var (spell, attr) = possibleUpgrades[index];
                 possibleUpgrades.RemoveAt(index);
-
-                if (TryGetDefaultValueFromSpellTable(spell, attr, out float defaultValue) && defaultValue == 0)  // if attribute is 0 ignore it
-                {
-                    Plugin.Log.LogInfo($"[BoostedPatch.GenerateUpgradeOptions] Ignoring {spell} {attr} because it is 0");
-                    i--;
-                    continue;
-                }
-                else
-                {
-                    bool o = TryGetDefaultValueFromSpellTable(spell, attr, out float val);
-                    Plugin.Log.LogInfo($"[BoostedPatch.GenerateUpgradeOptions] TryGetDefaultValueFromSpellTable: ret: {o}, val: {val}");
-                }
 
                 options.Add(new UpgradeOption
                 {
@@ -232,6 +279,7 @@ namespace Patches.Boosted
                     Tier = Upgrades.GetRandom()
                 });
             }
+
             return options;
         }
 

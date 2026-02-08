@@ -131,11 +131,12 @@ namespace Patches.Balance
     }
 
     // somassault radius increase from 4 to 5
-    [HarmonyPatch(typeof(SomAssaultObject), "PrepareDestroy")]
-    public static class Patch_SomAssault_PrepareDestroy
+    [HarmonyPatch(typeof(SomAssaultObject), "Init")]
+    public static class Patch_SomAssault_Init
     {
         static void Prefix(SomAssaultObject __instance)
         {
+            if (Loader.BoostedLoaded) return;
             Traverse.Create(__instance)
                     .Field("RADIUS")
                     .SetValue(5f);
@@ -172,6 +173,20 @@ namespace Patches.Balance
             var mgr = __instance ?? Globals.spell_manager;
             if (mgr == null || mgr.spell_table == null) return;
 
+            if (mgr.spell_table.TryGetValue(SpellName.FlashFlood, out Spell flashFloodSpell))
+                flashFloodSpell.description = "Short range teleport that resets velocity. Can be reactivated to return to casting point.";
+
+            if (mgr.spell_table.TryGetValue(SpellName.Brrage, out Spell brrageSpell))
+                brrageSpell.description = "Fires a barrage of 3 icicles in the cast direction, dealing damage and creating new crystals after a delay. On cast, your Crystals become Inert, just sitting there.";
+
+            if (mgr.spell_table.TryGetValue(SpellName.Wormhole, out Spell wormholeSpell))
+            {
+                wormholeSpell.description = "Gives you a temporary boost to your movement speed.";
+                wormholeSpell.cooldown = 9f;
+            }
+
+            if (Loader.BoostedLoaded) return;
+
             if (mgr.spell_table.TryGetValue(SpellName.Chameleon, out Spell chameleonSpell))
                 chameleonSpell.cooldown = 9f;
 
@@ -189,12 +204,6 @@ namespace Patches.Balance
 
             if (mgr.spell_table.TryGetValue(SpellName.FlameLeap, out Spell flameLeapSpell))
                 flameLeapSpell.cooldown = 12f;
-
-            if (mgr.spell_table.TryGetValue(SpellName.FlashFlood, out Spell flashFloodSpell))
-                flashFloodSpell.description = "Short range teleport that resets velocity. Can be reactivated to return to casting point.";
-
-            if (mgr.spell_table.TryGetValue(SpellName.Brrage, out Spell brrageSpell))
-                brrageSpell.description = "Fires a barrage of 3 icicles in the cast direction, dealing damage and creating new crystals after a delay. On cast, your Crystals become Inert, just sitting there.";
         }
     }
 
@@ -295,9 +304,10 @@ namespace Patches.Balance
         }
     }
 
+    // wormhole is a move speed buff now
     static class WormholePatchHelper
     {
-        private static readonly float speedBuff = 2f;
+        private static readonly float speedBuff = 1.8f;
         private static WizardController wc;
 
         public static void localSpellObjectStart(GameObject wizard, float duration = 5f)
