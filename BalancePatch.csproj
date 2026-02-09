@@ -9,35 +9,35 @@
 
 	<ItemGroup>
 		<Reference Include="BepInEx">
-			<HintPath>..\BepInEx\core\BepInEx.dll</HintPath>
+			<HintPath>lib\BepInEx.dll</HintPath>
 		</Reference>
 
 		<Reference Include="UnityEngine">
-			<HintPath>..\MageQuit_Data\Managed\UnityEngine.dll</HintPath>
+			<HintPath>lib\UnityEngine.dll</HintPath>
 		</Reference>
 
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>..\MageQuit_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+			<HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
 
 		<Reference Include="0Harmony">
-			<HintPath>.\bin\Debug\net472\0Harmony.dll</HintPath>
+			<HintPath>lib\0Harmony.dll</HintPath>
 		</Reference>
 
 		<Reference Include="Assembly-CSharp">
-			<HintPath>..\MageQuit_Data\Managed\Assembly-CSharp.dll</HintPath>
+			<HintPath>lib\Assembly-CSharp.dll</HintPath>
 		</Reference>
 
 		<Reference Include="UnityEngine.PhysicsModule">
-			<HintPath>..\MageQuit_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+			<HintPath>lib\UnityEngine.PhysicsModule.dll</HintPath>
 		</Reference>
 
 		<Reference Include="UnityEngine.VideoModule">
-			<HintPath>..\MageQuit_Data\Managed\UnityEngine.VideoModule.dll</HintPath>
+			<HintPath>lib\UnityEngine.VideoModule.dll</HintPath>
 		</Reference>
 
 		<Reference Include="UnityEngine.IMGUIModule">
-			<HintPath>..\MageQuit_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+			<HintPath>lib\UnityEngine.IMGUIModule.dll</HintPath>
 		</Reference>
 
 	</ItemGroup>
