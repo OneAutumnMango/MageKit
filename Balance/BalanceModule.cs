@@ -9,7 +9,7 @@ namespace BalancePatch.Balance
 
         protected override void OnLoad(Harmony harmony)
         {
-            harmony.PatchAll(typeof(BalancePatches));
+            PatchGroup(harmony, typeof(BalancePatches));
         }
 
         protected override void OnUnload(Harmony harmony)

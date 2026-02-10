@@ -9,7 +9,7 @@ namespace BalancePatch.Debug
 
         protected override void OnLoad(Harmony harmony)
         {
-            harmony.PatchAll(typeof(DebugPatches));
+            PatchGroup(harmony, typeof(DebugPatches));
         }
 
         protected override void OnUnload(Harmony harmony)

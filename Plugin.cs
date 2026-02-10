@@ -5,7 +5,6 @@ using MageQuitModFramework.Loading;
 using MageQuitModFramework.UI;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BalancePatch
 {
@@ -30,11 +29,20 @@ namespace BalancePatch
             Log = Logger;
             Log.LogInfo("Balance Patch plugin loading...");
 
+            // Initialize Harmony
+            var harmony = new Harmony("org.bepinex.plugins.balancepatch");
+
+            // Initialize ModuleManager with Harmony instance
+            ModuleManager.Initialize(harmony);
+
+            // Initialize RandomiserRng with a default seed
+            RandomiserRng = new System.Random();
+
             ModuleManager.RegisterModule(new Balance.BalanceModule());
             ModuleManager.RegisterModule(new Debug.DebugModule());
             ModuleManager.RegisterModule(new Boosted.BoostedModule());
             ModuleManager.RegisterModule(new Randomiser.RandomiserModule());
-            
+
             RegisterWithFramework();
 
             Log.LogInfo("Balance Patch plugin loaded!");
@@ -50,22 +58,45 @@ namespace BalancePatch
             );
         }
 
-        private void BuildModUI(Transform parent)
+        private string seedInput = "";
+
+        private void BuildModUI()
         {
-            UIComponents.CreateModuleToggleButton(parent, "Balance");
-            UIComponents.CreateModuleToggleButton(parent, "Debug");
-            UIComponents.CreateModuleToggleButton(parent, "Boosted");
-            UIComponents.CreateModuleToggleButton(parent, "Randomiser");
-            
-            var inputField = UIComponents.CreateInputField(parent, "SeedInput", "Enter seed...", 200, 40);
-            
-            var setSeedButton = UIComponents.CreateButton(parent, "SetSeedButton", "Set Seed", 200, 40);
-            setSeedButton.onClick.AddListener(() =>
+            GUILayout.Label("Balance Patch Modules");
+            GUILayout.Space(10);
+
+            DrawModuleToggle("Balance");
+            DrawModuleToggle("Debug");
+            DrawModuleToggle("Boosted");
+            DrawModuleToggle("Randomiser");
+
+            GUILayout.Space(10);
+            GUILayout.Label("Randomiser Seed:");
+
+            GUILayout.BeginHorizontal();
+            seedInput = GUILayout.TextField(seedInput, GUILayout.Width(200));
+
+            if (GUILayout.Button("Set Seed", GUILayout.Width(100)))
             {
-                int seedInt = Randomiser.RandomiserHelpers.HashSeed(inputField.text);
+                int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);
                 RandomiserRng = new System.Random(seedInt);
-                Log.LogInfo($"[Randomiser] Set seed to '{inputField.text}' (hash: {seedInt})");
-            });
+                Log.LogInfo($"[Randomiser] Set seed to '{seedInput}' (hash: {seedInt})");
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawModuleToggle(string moduleName)
+        {
+            bool isLoaded = ModuleManager.IsModuleLoaded(moduleName);
+            string buttonText = isLoaded ? $"Unload {moduleName}" : $"Load {moduleName}";
+
+            if (GUILayout.Button(buttonText, GUILayout.Width(200)))
+            {
+                if (isLoaded)
+                    ModuleManager.UnloadModule(moduleName);
+                else
+                    ModuleManager.LoadModule(moduleName);
+            }
         }
 
         private void OnGUI()

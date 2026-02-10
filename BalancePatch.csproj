@@ -21,11 +21,11 @@
 		</Reference>
 
 		<Reference Include="UnityEngine.UI">
-			<HintPath>..\SpellcastModFrameworkStandalone\lib\UnityEngine.UI.dll</HintPath>
+			<HintPath>\lib\UnityEngine.UI.dll</HintPath>
 		</Reference>
 
 		<Reference Include="UnityEngine.TextRenderingModule">
-			<HintPath>..\SpellcastModFrameworkStandalone\lib\UnityEngine.TextRenderingModule.dll</HintPath>
+			<HintPath>\lib\UnityEngine.TextRenderingModule.dll</HintPath>
 		</Reference>
 
 		<Reference Include="0Harmony">
@@ -39,10 +39,9 @@
 		<Reference Include="UnityEngine.PhysicsModule">
 			<HintPath>lib\UnityEngine.PhysicsModule.dll</HintPath>
 		</Reference>
-	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\SpellcastModFrameworkStandalone\MageQuitModFramework\MageQuitModFramework.csproj" />
+		<ProjectReference Include="..\MageQuitModFramework\MageQuitModFramework\MageQuitModFramework.csproj" />
+
 		<Reference Include="UnityEngine.VideoModule">
 			<HintPath>lib\UnityEngine.VideoModule.dll</HintPath>
 		</Reference>
@@ -50,17 +49,24 @@
 		<Reference Include="UnityEngine.IMGUIModule">
 			<HintPath>lib\UnityEngine.IMGUIModule.dll</HintPath>
 		</Reference>
-
 	</ItemGroup>
 
-	<Target Name="CopyToBepInEx" AfterTargets="Build" Condition="Exists('..\BepInEx\plugins')">
+	<PropertyGroup>
+		<BepInExPluginDir>
+			C:\Program Files (x86)\Steam\steamapps\common\MageQuit\BepInEx\plugins
+		</BepInExPluginDir>
+	</PropertyGroup>
+
+	<Target Name="CopyToBepInEx"
+			AfterTargets="Build"
+			Condition="Exists('$(BepInExPluginDir)')">
+
 		<ItemGroup>
 			<PluginDlls Include="$(OutputPath)BalancePatch.dll" />
 		</ItemGroup>
 
 		<Copy SourceFiles="@(PluginDlls)"
-			  DestinationFolder="..\BepInEx\plugins"
-			  SkipUnchangedFiles="true" />
+				DestinationFolder="$(BepInExPluginDir)" />
 	</Target>
 
 
