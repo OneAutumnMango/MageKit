@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
-using SpellcastModFramework.Core;
+using MageQuitModFramework.Core;
 
 namespace BalancePatch.Balance
 {

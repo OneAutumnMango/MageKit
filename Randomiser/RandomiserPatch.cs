@@ -1,6 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
-using SpellcastModFramework.Core;
+using MageQuitModFramework.Core;
 using System.Collections.Generic;
 using System;
 

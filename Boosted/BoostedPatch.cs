@@ -1,6 +1,6 @@
 using HarmonyLib;
-using SpellcastModFramework.Core;
-using SpellcastModFramework.Loading;
+using MageQuitModFramework.Core;
+using MageQuitModFramework.Loading;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -42,7 +42,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\SpellcastModFrameworkStandalone\SpellcastModFramework\SpellcastModFramework.csproj" />
+		<ProjectReference Include="..\SpellcastModFrameworkStandalone\MageQuitModFramework\MageQuitModFramework.csproj" />
 		<Reference Include="UnityEngine.VideoModule">
 			<HintPath>lib\UnityEngine.VideoModule.dll</HintPath>
 		</Reference>

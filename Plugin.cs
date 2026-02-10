@@ -1,8 +1,8 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using SpellcastModFramework.Loading;
-using SpellcastModFramework.UI;
+using MageQuitModFramework.Loading;
+using MageQuitModFramework.UI;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace BalancePatch
 {
     [BepInPlugin("org.bepinex.plugins.balancepatch", "Balance Patch", "1.0.0")]
-    [BepInDependency("com.spellcast.modframework", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; }

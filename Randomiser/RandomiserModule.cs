@@ -1,5 +1,5 @@
 using HarmonyLib;
-using SpellcastModFramework.Loading;
+using MageQuitModFramework.Loading;
 
 namespace BalancePatch.Randomiser
 {
