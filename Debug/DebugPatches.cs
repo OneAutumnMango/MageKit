@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Reflection;
 using BalancePatch;
 
-namespace Patches.Debug
+namespace BalancePatch.Debug
 {
     public static class DebugPatches { }
 

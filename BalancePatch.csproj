@@ -20,6 +20,14 @@
 			<HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
 
+		<Reference Include="UnityEngine.UI">
+			<HintPath>..\SpellcastModFrameworkStandalone\lib\UnityEngine.UI.dll</HintPath>
+		</Reference>
+
+		<Reference Include="UnityEngine.TextRenderingModule">
+			<HintPath>..\SpellcastModFrameworkStandalone\lib\UnityEngine.TextRenderingModule.dll</HintPath>
+		</Reference>
+
 		<Reference Include="0Harmony">
 			<HintPath>lib\0Harmony.dll</HintPath>
 		</Reference>
@@ -31,7 +39,10 @@
 		<Reference Include="UnityEngine.PhysicsModule">
 			<HintPath>lib\UnityEngine.PhysicsModule.dll</HintPath>
 		</Reference>
+	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\SpellcastModFrameworkStandalone\SpellcastModFramework\SpellcastModFramework.csproj" />
 		<Reference Include="UnityEngine.VideoModule">
 			<HintPath>lib\UnityEngine.VideoModule.dll</HintPath>
 		</Reference>
@@ -42,7 +53,7 @@
 
 	</ItemGroup>
 
-	<Target Name="CopyToBepInEx" AfterTargets="Build">
+	<Target Name="CopyToBepInEx" AfterTargets="Build" Condition="Exists('..\BepInEx\plugins')">
 		<ItemGroup>
 			<PluginDlls Include="$(OutputPath)BalancePatch.dll" />
 		</ItemGroup>
