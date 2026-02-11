@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using MageQuitModFramework.Loading;
 using MageQuitModFramework.UI;
+using MageQuitModFramework.Core;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace BalancePatch
         public static List<Boosted.BoostedPatch.UpgradeOption> CurrentUpgradeOptions = [];
         public static HashSet<(SpellName, string)> BannedUpgrades = [];
 
+        private ModuleManager _moduleManager;
         private int upgradesSelected = 0;
         private readonly int MaxUpgrades = 3;
         private int freeBans = 1;
@@ -29,73 +31,44 @@ namespace BalancePatch
             Log = Logger;
             Log.LogInfo("Balance Patch plugin loading...");
 
-            // Initialize Harmony
-            var harmony = new Harmony("org.bepinex.plugins.balancepatch");
-
-            // Initialize ModuleManager with Harmony instance
-            ModuleManager.Initialize(harmony);
-
-            // Initialize RandomiserRng with a default seed
             RandomiserRng = new System.Random();
 
-            ModuleManager.RegisterModule(new Balance.BalanceModule());
-            ModuleManager.RegisterModule(new Debug.DebugModule());
-            ModuleManager.RegisterModule(new Boosted.BoostedModule());
-            ModuleManager.RegisterModule(new Randomiser.RandomiserModule());
+            string modDisplayName = "Balance Patch";
 
-            RegisterWithFramework();
+            _moduleManager = ModManager.RegisterMod(modDisplayName, "org.bepinex.plugins.balancepatch");
+            _moduleManager.RegisterModule(new Balance.BalanceModule());
+            _moduleManager.RegisterModule(new Debug.DebugModule());
+            _moduleManager.RegisterModule(new Boosted.BoostedModule());
+            _moduleManager.RegisterModule(new Randomiser.RandomiserModule());
 
-            Log.LogInfo("Balance Patch plugin loaded!");
-        }
-
-        private void RegisterWithFramework()
-        {
             ModUIRegistry.RegisterMod(
-                "Balance Patch",
+                modDisplayName,
                 "Core balance changes, boosted upgrades, and randomiser",
                 BuildModUI,
                 priority: 10
             );
+
+            Log.LogInfo("Balance Patch plugin loaded!");
         }
 
         private string seedInput = "";
 
         private void BuildModUI()
         {
-            GUILayout.Label("Balance Patch Modules");
-            GUILayout.Space(10);
-
-            DrawModuleToggle("Balance");
-            DrawModuleToggle("Debug");
-            DrawModuleToggle("Boosted");
-            DrawModuleToggle("Randomiser");
-
-            GUILayout.Space(10);
-            GUILayout.Label("Randomiser Seed:");
-
-            GUILayout.BeginHorizontal();
-            seedInput = GUILayout.TextField(seedInput, GUILayout.Width(200));
-
-            if (GUILayout.Button("Set Seed", GUILayout.Width(100)))
+            var (value, clicked) = UIComponents.TextFieldWithButton(
+                "Randomiser Seed:", 
+                seedInput, 
+                "Set Seed", 
+                out bool buttonClicked
+            );
+            
+            seedInput = value;
+            
+            if (buttonClicked)
             {
                 int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);
                 RandomiserRng = new System.Random(seedInt);
                 Log.LogInfo($"[Randomiser] Set seed to '{seedInput}' (hash: {seedInt})");
-            }
-            GUILayout.EndHorizontal();
-        }
-
-        private void DrawModuleToggle(string moduleName)
-        {
-            bool isLoaded = ModuleManager.IsModuleLoaded(moduleName);
-            string buttonText = isLoaded ? $"Unload {moduleName}" : $"Load {moduleName}";
-
-            if (GUILayout.Button(buttonText, GUILayout.Width(200)))
-            {
-                if (isLoaded)
-                    ModuleManager.UnloadModule(moduleName);
-                else
-                    ModuleManager.LoadModule(moduleName);
             }
         }
 
