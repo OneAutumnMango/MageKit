@@ -12,24 +12,17 @@ namespace BalancePatch.Boosted
         {
             BoostedPatch.PopulateManualModifierRejections();
 
-            // GameDataInitializer is already patched by the framework
-            // Just check if it's loaded, and if not, wait for the event
             if (GameDataInitializer.IsLoaded)
-            {
-                Plugin.Log.LogInfo("GameDataInitializer already loaded, applying patches now");
-                BoostedPatch.PopulateSpellModifierTable();
-                BoostedPatch.PatchAll(harmony);
-            }
+                ApplyBoostedPatches(harmony);
             else
-            {
-                Plugin.Log.LogWarning("GameDataInitializer not loaded yet, waiting for game data");
-                GameDataInitializer.OnGameDataLoaded += () =>
-                {
-                    Plugin.Log.LogInfo("Game data loaded, applying Boosted patches");
-                    BoostedPatch.PopulateSpellModifierTable();
-                    BoostedPatch.PatchAll(harmony);
-                };
-            }
+                GameDataInitializer.OnGameDataLoaded += () => ApplyBoostedPatches(harmony);
+        }
+
+        private void ApplyBoostedPatches(Harmony harmony)
+        {
+            Plugin.Log.LogInfo("Applying Boosted patches");
+            BoostedPatch.PopulateSpellModifierTable();
+            BoostedPatch.PatchAll(harmony);
         }
 
         protected override void OnUnload(Harmony harmony)
