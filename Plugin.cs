@@ -1,9 +1,10 @@
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using MageQuitModFramework.Loading;
+using MageQuitModFramework.Modding;
 using MageQuitModFramework.UI;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Spells;
+using MageQuitModFramework.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 

@@ -5,7 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Utilities;
+using MageQuitModFramework.Data;
+using MageQuitModFramework.Spells;
 
 namespace BalancePatch.Balance
 {

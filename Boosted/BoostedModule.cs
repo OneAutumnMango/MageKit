@@ -1,5 +1,6 @@
 using HarmonyLib;
-using MageQuitModFramework.Loading;
+using MageQuitModFramework.Modding;
+using MageQuitModFramework.Data;
 
 namespace BalancePatch.Boosted
 {
