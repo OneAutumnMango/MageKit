@@ -3,7 +3,7 @@ using MageQuitModFramework.Modding;
 
 namespace BalancePatch.Debug
 {
-    public class DebugModule : BaseModModule
+    public class DebugModule : BaseModule
     {
         public override string ModuleName => "Debug";
 

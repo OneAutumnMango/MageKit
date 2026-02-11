@@ -4,7 +4,7 @@ using MageQuitModFramework.Data;
 
 namespace BalancePatch.Boosted
 {
-    public class BoostedModule : BaseModModule
+    public class BoostedModule : BaseModule
     {
         public override string ModuleName => "Boosted";
 

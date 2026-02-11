@@ -3,7 +3,7 @@ using MageQuitModFramework.Modding;
 
 namespace BalancePatch.Randomiser
 {
-    public class RandomiserModule : BaseModModule
+    public class RandomiserModule : BaseModule
     {
         public override string ModuleName => "Randomiser";
 

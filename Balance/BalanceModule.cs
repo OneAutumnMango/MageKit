@@ -3,7 +3,7 @@ using MageQuitModFramework.Modding;
 
 namespace BalancePatch.Balance
 {
-    public class BalanceModule : BaseModModule
+    public class BalanceModule : BaseModule
     {
         public override string ModuleName => "Balance";
 
