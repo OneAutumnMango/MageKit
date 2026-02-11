@@ -1,6 +1,7 @@
 using HarmonyLib;
 using UnityEngine;
-using MageQuitModFramework.Core;
+using MageQuitModFramework.Utilities;
+using MageQuitModFramework.Spells;
 using System.Collections.Generic;
 using System;
 
