@@ -56,7 +56,6 @@ namespace BalancePatch.Randomiser
                 if (original == 0f)
                     original += 0.1f;
                 value = original + (float)((rng.NextDouble() * 2 - 1) * rareMultiplier * original);
-                Plugin.Log.LogInfo($"[Randomiser] Big tweak: {original:F2} -> {Math.Max(0.1f * original, value):F2}");
             }
             return Math.Max(0.1f * original, value);
         }
@@ -72,8 +71,6 @@ namespace BalancePatch.Randomiser
 
                 if (fieldName == "RADIUS")
                     tweaked = Mathf.Clamp(tweaked, original / bound, original * bound);
-
-                Plugin.Log.LogInfo($"[Randomiser] {fieldName}: {original} -> {tweaked}");
                 return tweaked;
             });
         }

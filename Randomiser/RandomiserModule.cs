@@ -9,6 +9,7 @@ namespace BalancePatch.Randomiser
 
         protected override void OnLoad(Harmony harmony)
         {
+            Plugin.InitialiseRandomiserRng();
             RandomiserPatch.PrecomputeSpellAttributes();
             RandomiserPatch.PatchAll(harmony);
         }

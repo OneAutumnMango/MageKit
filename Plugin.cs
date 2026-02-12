@@ -23,13 +23,19 @@ namespace BalancePatch
         private readonly int MaxUpgrades = 3;
         private int freeBans = 1;
 
+        private static string seedInput = "";
+
+        public static void InitialiseRandomiserRng() =>
+            RandomiserRng = new System.Random(Randomiser.RandomiserHelpers.HashSeed(seedInput));
+
+
         private void Awake()
         {
             Instance = this;
             Log = Logger;
             Log.LogInfo("Balance Patch plugin loading...");
 
-            RandomiserRng = new System.Random();
+            InitialiseRandomiserRng();
 
             string modDisplayName = "Balance Patch";
 
@@ -49,8 +55,6 @@ namespace BalancePatch
             Log.LogInfo("Balance Patch plugin loaded!");
         }
 
-        private string seedInput = "";
-
         private void BuildModUI()
         {
             var (value, clicked) = UIComponents.TextFieldWithButton(
@@ -63,7 +67,7 @@ namespace BalancePatch
             if (buttonClicked)
             {
                 int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);
-                RandomiserRng = new System.Random(seedInt);
+                InitialiseRandomiserRng();
                 Log.LogInfo($"[Randomiser] Set seed to '{seedInput}' (hash: {seedInt})");
             }
         }
