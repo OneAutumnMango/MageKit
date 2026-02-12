@@ -51,7 +51,7 @@ namespace BalancePatch.Boosted
                 nameof(Prefix_SpellObjectInit),
                 BindingFlags.Static | BindingFlags.NonPublic
             );
-            GameModificationHelpers.PatchAllSpellObjectInit(harmony, prefixMethod);
+            SpellModificationSystem.PatchAllSpellObjectInit(harmony, prefixMethod);
         }
 
         public static void PopulateManualModifierRejections()

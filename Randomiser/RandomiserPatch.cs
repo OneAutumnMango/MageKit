@@ -1,5 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
+using MageQuitModFramework.Spells;
 using MageQuitModFramework.Utilities;
 using System.Collections.Generic;
 using System;
@@ -14,7 +15,7 @@ namespace BalancePatch.Randomiser
         public static void PatchAll(Harmony harmony)
         {
             harmony.PatchAll(typeof(RandomiserPatch));
-            GameModificationHelpers.PatchAllSpellObjectInit(harmony,
+            SpellModificationSystem.PatchAllSpellObjectInit(harmony,
                 prefixMethod: typeof(RandomiserPatch).GetMethod(nameof(Prefix_SpellObjectInit),
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
         }
@@ -26,7 +27,7 @@ namespace BalancePatch.Randomiser
             {
                 System.Random rng = Plugin.RandomiserRng;
 
-                GameModificationHelpers.ModifyAllSpells(__instance, spell =>
+                SpellModificationSystem.ModifyAllSpells(__instance, spell =>
                 {
                     Func<float, float> tweakFunc = spell.spellButton == SpellButton.Primary
                         ? oldValue => NextGaussian(rng, oldValue, 0.1f * oldValue)

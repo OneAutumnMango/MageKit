@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MageQuitModFramework.Spells;
 using MageQuitModFramework.Utilities;
 using MageQuitModFramework.Modding;
 
@@ -154,29 +155,29 @@ namespace BalancePatch.Balance
     {
         static void Postfix(SpellManager __instance)
         {
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.FlashFlood, spell =>
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.FlashFlood, spell =>
                 spell.description = "Short range teleport that resets velocity. Can be reactivated to return to casting point.");
 
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.Brrage, spell =>
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Brrage, spell =>
                 spell.description = "Fires a barrage of 3 icicles in the cast direction, dealing damage and creating new crystals after a delay. On cast, your Crystals become Inert, just sitting there.");
 
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.Wormhole, spell =>
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Wormhole, spell =>
             {
                 spell.description = "Gives you a temporary boost to your movement speed.";
                 spell.cooldown = 9f;
             });
 
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.Chameleon, spell => spell.cooldown = 9f);
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Chameleon, spell => spell.cooldown = 9f);
 
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.TowVine, spell =>
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.TowVine, spell =>
             {
                 spell.cooldown = 9f;
                 spell.additionalCasts[0].cooldown = 9f;
             });
 
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.BullRush, spell => spell.cooldown = 13f);
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.Echo, spell => spell.cooldown = 5f);
-            GameModificationHelpers.ModifySpellTableEntry(__instance, SpellName.FlameLeap, spell => spell.cooldown = 12f);
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.BullRush, spell => spell.cooldown = 13f);
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Echo, spell => spell.cooldown = 5f);
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.FlameLeap, spell => spell.cooldown = 12f);
         }
     }
 
