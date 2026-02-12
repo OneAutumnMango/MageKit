@@ -1,10 +1,7 @@
 using BepInEx;
 using BepInEx.Logging;
-using HarmonyLib;
 using MageQuitModFramework.Modding;
 using MageQuitModFramework.UI;
-using MageQuitModFramework.Spells;
-using MageQuitModFramework.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,14 +54,12 @@ namespace BalancePatch
         private void BuildModUI()
         {
             var (value, clicked) = UIComponents.TextFieldWithButton(
-                "Randomiser Seed:", 
-                seedInput, 
-                "Set Seed", 
-                out bool buttonClicked
+                "Randomiser Seed:", seedInput,
+                "Set Seed", out bool buttonClicked
             );
-            
+
             seedInput = value;
-            
+
             if (buttonClicked)
             {
                 int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);

@@ -23,6 +23,7 @@ namespace BalancePatch.Boosted
             Plugin.Log.LogInfo("Applying Boosted patches");
             BoostedPatch.PopulateSpellModifierTable();
             BoostedPatch.PatchAll(harmony);
+            PatchGroup(harmony, typeof(BoostedPatch));
         }
 
         protected override void OnUnload(Harmony harmony)

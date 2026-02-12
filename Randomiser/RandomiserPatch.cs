@@ -1,7 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
 using MageQuitModFramework.Utilities;
-using MageQuitModFramework.Spells;
 using System.Collections.Generic;
 using System;
 
@@ -15,8 +14,8 @@ namespace BalancePatch.Randomiser
         public static void PatchAll(Harmony harmony)
         {
             harmony.PatchAll(typeof(RandomiserPatch));
-            GameModificationHelpers.PatchAllSpellObjectInit(harmony, 
-                prefixMethod: typeof(RandomiserPatch).GetMethod(nameof(Prefix_SpellObjectInit), 
+            GameModificationHelpers.PatchAllSpellObjectInit(harmony,
+                prefixMethod: typeof(RandomiserPatch).GetMethod(nameof(Prefix_SpellObjectInit),
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
         }
 
@@ -70,10 +69,10 @@ namespace BalancePatch.Randomiser
             PrecomputedSpellValues = RandomiserHelpers.PrecomputeSpellAttributes(tweakFields, (fieldName, original) =>
             {
                 float tweaked = RandomTweak(rng, original);
-                
+
                 if (fieldName == "RADIUS")
                     tweaked = Mathf.Clamp(tweaked, original / bound, original * bound);
-                
+
                 Plugin.Log.LogInfo($"[Randomiser] {fieldName}: {original} -> {tweaked}");
                 return tweaked;
             });

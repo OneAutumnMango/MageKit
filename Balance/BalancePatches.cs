@@ -1,13 +1,10 @@
-using BalancePatch;
 using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using UnityEngine;
 using MageQuitModFramework.Utilities;
-using MageQuitModFramework.Data;
-using MageQuitModFramework.Spells;
+using MageQuitModFramework.Modding;
 
 namespace BalancePatch.Balance
 {
@@ -132,6 +129,9 @@ namespace BalancePatch.Balance
     {
         static void Prefix(SomAssaultObject __instance)
         {
+            if (ModManager.TryGetModuleManager("Balance Patch", out ModuleManager moduleManager)
+                && moduleManager.IsModuleLoaded("Boosted")) return;  // skip if boosted (ik this is horrible)
+
             Traverse.Create(__instance)
                     .Field("RADIUS")
                     .SetValue(5f);
@@ -230,7 +230,7 @@ namespace BalancePatch.Balance
     {
         public static readonly float oldSlowFactor = 0.5f;
         public static readonly float newSlowFactor = 0.65f;  // slows by (1 - newSlowFactor)
-        
+
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return GameModificationHelpers.ReplaceFloatConstant(instructions, oldSlowFactor, newSlowFactor);
@@ -243,8 +243,8 @@ namespace BalancePatch.Balance
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            return GameModificationHelpers.ReplaceFloatConstant(instructions, 
-                Patch_HinderObject_localApplySlow_Speed.oldSlowFactor, 
+            return GameModificationHelpers.ReplaceFloatConstant(instructions,
+                Patch_HinderObject_localApplySlow_Speed.oldSlowFactor,
                 Patch_HinderObject_localApplySlow_Speed.newSlowFactor);
         }
     }

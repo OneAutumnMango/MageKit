@@ -1,7 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
 using System.Reflection;
-using BalancePatch;
 
 namespace BalancePatch.Debug
 {

@@ -15,7 +15,7 @@ namespace BalancePatch.Boosted
         private static readonly string[] ClassAttributeKeys = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
         private static readonly string[] SpellTableKeys = ["cooldown", "windUp", "windDown", "initialVelocity"];
         private static readonly string[] CustomKeys = ["HEAL"];
-        
+
         private static Dictionary<SpellName, string[]> ManualModifierRejections = [];
         public static int numUpgradesPerRound = 10;
 
@@ -29,15 +29,15 @@ namespace BalancePatch.Boosted
             {
                 string attrDisplay = Attribute switch
                 {
-                    "DAMAGE" => "Damage",
-                    "RADIUS" => "Impact Radius",
-                    "POWER" => "Knockback",
-                    "Y_POWER" => "Knockup",
-                    "cooldown" => "Cooldown",
-                    "windUp" => "Wind Up",
-                    "windDown" => "Wind Down",
+                    "DAMAGE"          => "Damage",
+                    "RADIUS"          => "Impact Radius",
+                    "POWER"           => "Knockback",
+                    "Y_POWER"         => "Knockup",
+                    "cooldown"        => "Cooldown",
+                    "windUp"          => "Wind Up",
+                    "windDown"        => "Wind Down",
                     "initialVelocity" => "Initial Velocity",
-                    "HEAL" => "Healing",
+                    "HEAL"            => "Healing",
                     _ => Attribute
                 };
                 return $"{Spell}: {attrDisplay}";
@@ -46,21 +46,28 @@ namespace BalancePatch.Boosted
 
         public static void PatchAll(Harmony harmony)
         {
-            harmony.PatchAll(typeof(BoostedPatch));
-            
+            // harmony.PatchAll(typeof(BoostedPatch));
             MethodInfo prefixMethod = typeof(BoostedPatch).GetMethod(
                 nameof(Prefix_SpellObjectInit),
                 BindingFlags.Static | BindingFlags.NonPublic
             );
-            
             GameModificationHelpers.PatchAllSpellObjectInit(harmony, prefixMethod);
         }
 
         public static void PopulateManualModifierRejections()
         {
-            ManualModifierRejections[SpellName.FrogOfLife] = ["DAMAGE", "POWER", "Y_POWER"];
-            ManualModifierRejections[SpellName.Suspend] = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
-            ManualModifierRejections[SpellName.Sapshot] = ["DAMAGE", "RADIUS", "POWER"];
+            // cooldown, windup, winddown, initialVelocity
+            ManualModifierRejections = new Dictionary<SpellName, string[]>
+            {
+                [SpellName.FrogOfLife] = ["DAMAGE", "POWER", "Y_POWER"],
+                [SpellName.Suspend] = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"],
+                [SpellName.Sapshot] = ["DAMAGE", "RADIUS", "POWER"],
+                [SpellName.Vacuum] = ["DAMAGE"],
+                [SpellName.FlashFlood] = ["RADIUS", "POWER", "Y_POWER", "windUp", "windDown"],
+                [SpellName.Preserve] = ["RADIUS", "POWER", "windUp", "windDown"],
+                [SpellName.BubbleBreaker] = ["RADIUS", "POWER", "windUp", "windDown"],
+                [SpellName.Urchain] = ["RADIUS", "POWER"]
+            };
         }
 
         public static void PopulateSpellModifierTable()
@@ -125,6 +132,7 @@ namespace BalancePatch.Boosted
             if (spell.spellButton == SpellButton.Movement && attribute == "RADIUS" && mult >= 2f)
                 return false;
 
+            // nothing but primary below
             if (spell.spellButton != SpellButton.Primary)
                 return true;
 
@@ -184,7 +192,7 @@ namespace BalancePatch.Boosted
             if (!matchedSpell.HasValue) return;
 
             var values = new Dictionary<string, float>();
-            
+
             if (SpellModificationSystem.TryGetModifier(matchedSpell.Value, "DAMAGE", out var damage))
                 values["DAMAGE"] = damage;
             if (SpellModificationSystem.TryGetModifier(matchedSpell.Value, "RADIUS", out var radius))
