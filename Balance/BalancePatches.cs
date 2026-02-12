@@ -1,12 +1,13 @@
-using BalancePatch;
 using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using UnityEngine;
+using MageQuitModFramework.Spells;
+using MageQuitModFramework.Utilities;
+using MageQuitModFramework.Modding;
 
-namespace Patches.Balance
+namespace BalancePatch.Balance
 {
     public static class BalancePatches { }
 
@@ -52,14 +53,7 @@ namespace Patches.Balance
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach (var instr in instructions)
-            {
-                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && f == 4.7f)
-                {
-                    instr.operand = 3.5f;
-                }
-                yield return instr;
-            }
+            return GameModificationHelpers.ReplaceFloatConstant(instructions, 4.7f, 3.5f);
         }
     }
 
@@ -136,7 +130,9 @@ namespace Patches.Balance
     {
         static void Prefix(SomAssaultObject __instance)
         {
-            if (Loader.BoostedLoaded) return;
+            if (ModManager.TryGetModuleManager("Balance Patch", out ModuleManager moduleManager)
+                && moduleManager.IsModuleLoaded("Boosted")) return;  // skip if boosted (ik this is horrible)
+
             Traverse.Create(__instance)
                     .Field("RADIUS")
                     .SetValue(5f);
@@ -149,18 +145,7 @@ namespace Patches.Balance
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach (var instr in instructions)
-            {
-                // replace integer constant 5 with 3
-                if (instr.opcode == OpCodes.Ldc_I4_5 ||
-                    (instr.opcode == OpCodes.Ldc_I4 && instr.operand is int i && i == 5) ||
-                    (instr.opcode == OpCodes.Ldc_I4_S && instr.operand is sbyte sb && sb == 5))
-                {
-                    instr.opcode = OpCodes.Ldc_I4_3;
-                    instr.operand = null;
-                }
-                yield return instr;
-            }
+            return GameModificationHelpers.ReplaceIntConstant(instructions, 5, 3);
         }
     }
 
@@ -170,40 +155,29 @@ namespace Patches.Balance
     {
         static void Postfix(SpellManager __instance)
         {
-            var mgr = __instance ?? Globals.spell_manager;
-            if (mgr == null || mgr.spell_table == null) return;
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.FlashFlood, spell =>
+                spell.description = "Short range teleport that resets velocity. Can be reactivated to return to casting point.");
 
-            if (mgr.spell_table.TryGetValue(SpellName.FlashFlood, out Spell flashFloodSpell))
-                flashFloodSpell.description = "Short range teleport that resets velocity. Can be reactivated to return to casting point.";
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Brrage, spell =>
+                spell.description = "Fires a barrage of 3 icicles in the cast direction, dealing damage and creating new crystals after a delay. On cast, your Crystals become Inert, just sitting there.");
 
-            if (mgr.spell_table.TryGetValue(SpellName.Brrage, out Spell brrageSpell))
-                brrageSpell.description = "Fires a barrage of 3 icicles in the cast direction, dealing damage and creating new crystals after a delay. On cast, your Crystals become Inert, just sitting there.";
-
-            if (mgr.spell_table.TryGetValue(SpellName.Wormhole, out Spell wormholeSpell))
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Wormhole, spell =>
             {
-                wormholeSpell.description = "Gives you a temporary boost to your movement speed.";
-                wormholeSpell.cooldown = 9f;
-            }
+                spell.description = "Gives you a temporary boost to your movement speed.";
+                spell.cooldown = 9f;
+            });
 
-            if (Loader.BoostedLoaded) return;
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Chameleon, spell => spell.cooldown = 9f);
 
-            if (mgr.spell_table.TryGetValue(SpellName.Chameleon, out Spell chameleonSpell))
-                chameleonSpell.cooldown = 9f;
-
-            if (mgr.spell_table.TryGetValue(SpellName.TowVine, out Spell towVineSpell))
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.TowVine, spell =>
             {
-                towVineSpell.cooldown = 9f;
-                towVineSpell.additionalCasts[0].cooldown = 9f;  // recast
-            }
+                spell.cooldown = 9f;
+                spell.additionalCasts[0].cooldown = 9f;
+            });
 
-            if (mgr.spell_table.TryGetValue(SpellName.BullRush, out Spell bullRushSpell))
-                bullRushSpell.cooldown = 13f;
-
-            if (mgr.spell_table.TryGetValue(SpellName.Echo, out Spell echoSpell))
-                echoSpell.cooldown = 5f;
-
-            if (mgr.spell_table.TryGetValue(SpellName.FlameLeap, out Spell flameLeapSpell))
-                flameLeapSpell.cooldown = 12f;
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.BullRush, spell => spell.cooldown = 13f);
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.Echo, spell => spell.cooldown = 5f);
+            SpellModificationSystem.ModifySpellTableEntry(__instance, SpellName.FlameLeap, spell => spell.cooldown = 12f);
         }
     }
 
@@ -225,15 +199,7 @@ namespace Patches.Balance
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            float prev = 0.275f;
-            foreach (var instr in instructions)
-            {
-                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - prev) < 1e-6f)
-                {
-                    instr.operand = prev * 1.25f;
-                }
-                yield return instr;
-            }
+            return GameModificationHelpers.ReplaceFloatConstant(instructions, 0.275f, 0.275f * 1.25f);
         }
     }
 
@@ -243,15 +209,7 @@ namespace Patches.Balance
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            float prev = 0.6f;
-            foreach (var instr in instructions)
-            {
-                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - prev) < 1e-6f)
-                {
-                    instr.operand = prev * 1.15f;
-                }
-                yield return instr;
-            }
+            return GameModificationHelpers.ReplaceFloatConstant(instructions, 0.6f, 0.6f * 1.15f);
         }
     }
 
@@ -271,19 +229,12 @@ namespace Patches.Balance
     [HarmonyPatch(typeof(HinderObject), "localApplySlow")]
     public static class Patch_HinderObject_localApplySlow_Speed
     {
-
         public static readonly float oldSlowFactor = 0.5f;
         public static readonly float newSlowFactor = 0.65f;  // slows by (1 - newSlowFactor)
+
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach (var instr in instructions)
-            {
-                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - oldSlowFactor) < 1e-6f)
-                {
-                    instr.operand = newSlowFactor;
-                }
-                yield return instr;
-            }
+            return GameModificationHelpers.ReplaceFloatConstant(instructions, oldSlowFactor, newSlowFactor);
         }
     }
 
@@ -293,14 +244,9 @@ namespace Patches.Balance
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach (var instr in instructions)
-            {
-                if (instr.opcode == OpCodes.Ldc_R4 && instr.operand is float f && Math.Abs(f - Patch_HinderObject_localApplySlow_Speed.oldSlowFactor) < 1e-6f)
-                {
-                    instr.operand = Patch_HinderObject_localApplySlow_Speed.newSlowFactor;
-                }
-                yield return instr;
-            }
+            return GameModificationHelpers.ReplaceFloatConstant(instructions,
+                Patch_HinderObject_localApplySlow_Speed.oldSlowFactor,
+                Patch_HinderObject_localApplySlow_Speed.newSlowFactor);
         }
     }
 
@@ -365,14 +311,7 @@ namespace Patches.Balance
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            foreach (var instr in instructions)
-            {
-                if (instr.opcode == OpCodes.Ldc_I4_S && (sbyte)instr.operand == 20)
-                    instr.operand = (sbyte)30;
-                else if (instr.opcode == OpCodes.Ldc_I4 && (int)instr.operand == 20)
-                    instr.operand = 30;
-                yield return instr;
-            }
+            return GameModificationHelpers.ReplaceIntConstant(instructions, 20, 30);
         }
     }
 
