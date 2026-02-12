@@ -2,7 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using System.Reflection;
 
-namespace BalancePatch.Debug
+namespace MageKit.Debug
 {
     public static class DebugPatches { }
 

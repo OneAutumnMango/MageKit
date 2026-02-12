@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace BalancePatch.Boosted
+namespace MageKit.Boosted
 {
     public static class BoostedPatch
     {

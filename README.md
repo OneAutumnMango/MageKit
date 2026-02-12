@@ -13,11 +13,11 @@ DO NOT USE THESE MODS FOR ONLINE PLAY WITH RANDOMS. IT CAN CAUSE SOME MAJOR ISSU
 1. Install [BepinEx 5](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.4) into your MageQuit directory.
 2. Run and then open MageQuit to generate BepInEx files.
 3. Download the latest release here.
-4. Extract the contents of the downloaded zip file into your MageQuit directory. (should be like `MageQuit/BepInEx/plugins/BalancePatch.dll`)
+4. Extract the contents of the downloaded zip file into your MageQuit directory. (should be like `MageQuit/BepInEx/plugins/MageKit.dll`)
 5. Launch the game.
 
 BepInEx mirror: https://www.nexusmods.com/magequit/mods/1 <br>
-BalancePatch mirror: https://www.nexusmods.com/magequit/mods/2
+MageKit mirror: https://www.nexusmods.com/magequit/mods/2
 
 
 ## How to Use the Randomiser

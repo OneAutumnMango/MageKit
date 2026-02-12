@@ -1,7 +1,7 @@
 using HarmonyLib;
 using MageQuitModFramework.Modding;
 
-namespace BalancePatch.Randomiser
+namespace MageKit.Randomiser
 {
     public class RandomiserModule : BaseModule
     {

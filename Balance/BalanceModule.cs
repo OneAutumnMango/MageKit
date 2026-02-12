@@ -1,7 +1,7 @@
 using HarmonyLib;
 using MageQuitModFramework.Modding;
 
-namespace BalancePatch.Balance
+namespace MageKit.Balance
 {
     public class BalanceModule : BaseModule
     {

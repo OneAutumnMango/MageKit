@@ -1,4 +1,4 @@
-namespace BalancePatch.Boosted
+namespace MageKit.Boosted
 {
     public static class Upgrades
     {

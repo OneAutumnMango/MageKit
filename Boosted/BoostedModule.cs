@@ -2,7 +2,7 @@ using HarmonyLib;
 using MageQuitModFramework.Modding;
 using MageQuitModFramework.Data;
 
-namespace BalancePatch.Boosted
+namespace MageKit.Boosted
 {
     public class BoostedModule : BaseModule
     {

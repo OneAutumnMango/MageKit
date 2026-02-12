@@ -5,9 +5,9 @@ using MageQuitModFramework.UI;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BalancePatch
+namespace MageKit
 {
-    [BepInPlugin("org.bepinex.plugins.balancepatch", "Balance Patch", "1.0.0")]
+    [BepInPlugin("com.magequit.magekit", "MageKit", "1.0.0")]
     [BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BaseUnityPlugin
     {
@@ -33,13 +33,13 @@ namespace BalancePatch
         {
             Instance = this;
             Log = Logger;
-            Log.LogInfo("Balance Patch plugin loading...");
+            Log.LogInfo("MageKit loading...");
 
             InitialiseRandomiserRng();
 
-            string modDisplayName = "Balance Patch";
+            string modDisplayName = "MageKit";
 
-            _moduleManager = ModManager.RegisterMod(modDisplayName, "org.bepinex.plugins.balancepatch");
+            _moduleManager = ModManager.RegisterMod(modDisplayName, "com.magekit.core");
             _moduleManager.RegisterModule(new Balance.BalanceModule());
             _moduleManager.RegisterModule(new Debug.DebugModule());
             _moduleManager.RegisterModule(new Boosted.BoostedModule());
@@ -52,7 +52,7 @@ namespace BalancePatch
                 priority: 10
             );
 
-            Log.LogInfo("Balance Patch plugin loaded!");
+            Log.LogInfo("MageKit loaded!");
         }
 
         private void BuildModUI()

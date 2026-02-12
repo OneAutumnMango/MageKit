@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using MageQuitModFramework.Spells;
 
-namespace BalancePatch.Randomiser
+namespace MageKit.Randomiser
 {
     public static class RandomiserHelpers
     {

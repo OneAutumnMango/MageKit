@@ -32,7 +32,7 @@ jobs:
         run: |
           set -e
 
-          DLL_PATH="bin/Release/net472/BalancePatch.dll"
+          DLL_PATH="bin/Release/net472/MageKit.dll"
 
           if [ ! -f "$DLL_PATH" ]; then
             echo "Error: $DLL_PATH not found" >&2
@@ -42,7 +42,7 @@ jobs:
           fi
 
           mkdir -p BepInEx/plugins
-          cp "$DLL_PATH" BepInEx/plugins/BalancePatch.dll
+          cp "$DLL_PATH" BepInEx/plugins/MageKit.dll
 
           zip -r BepInEx.zip BepInEx
 

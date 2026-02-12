@@ -7,7 +7,7 @@ using MageQuitModFramework.Spells;
 using MageQuitModFramework.Utilities;
 using MageQuitModFramework.Modding;
 
-namespace BalancePatch.Balance
+namespace MageKit.Balance
 {
     public static class BalancePatches { }
 
@@ -130,7 +130,7 @@ namespace BalancePatch.Balance
     {
         static void Prefix(SomAssaultObject __instance)
         {
-            if (ModManager.TryGetModuleManager("Balance Patch", out ModuleManager moduleManager)
+            if (ModManager.TryGetModuleManager("MageKit", out ModuleManager moduleManager)
                 && moduleManager.IsModuleLoaded("Boosted")) return;  // skip if boosted (ik this is horrible)
 
             Traverse.Create(__instance)

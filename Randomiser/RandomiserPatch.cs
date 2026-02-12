@@ -5,7 +5,7 @@ using MageQuitModFramework.Utilities;
 using System.Collections.Generic;
 using System;
 
-namespace BalancePatch.Randomiser
+namespace MageKit.Randomiser
 {
     public static class RandomiserPatch
     {
