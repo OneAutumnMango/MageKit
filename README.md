@@ -36,7 +36,7 @@ MageKit mirror: https://www.nexusmods.com/magequit/mods/2
 
 1. Launch the game (after install)
 2. Enter into a game.
-3. Click `Load Boosted` (DO NOT DO THIS BEFORE OPENING A GAME)
+3. Click `Load Boosted`
 
 To play a new game after having played one already, click `Unload Boosted` then once youre in the picking screen of the next game `Load Boosted`.
 
