@@ -49,6 +49,10 @@
 		<Reference Include="UnityEngine.IMGUIModule">
 			<HintPath>lib\UnityEngine.IMGUIModule.dll</HintPath>
 		</Reference>
+
+		<Reference Include="DOTween">
+			<HintPath>lib\DOTween.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<ItemGroup Condition="Exists('..\MageQuitModFramework\MageQuitModFramework\MageQuitModFramework.csproj')">
