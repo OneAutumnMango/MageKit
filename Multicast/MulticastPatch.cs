@@ -11,9 +11,9 @@ namespace MageKit.Multicast
     {
         private static readonly Dictionary<int, float> MulticastChances = new()
         {
-            { 4, .15f },
-            { 3, .30f },
-            { 2, .75f }
+            [4] = .15f,
+            [3] = .30f,
+            [2] = .75f
         };
 
         private static bool _isMulticasting = false;
@@ -22,12 +22,9 @@ namespace MageKit.Multicast
         {
             float roll = Random.Range(0f, 1f);
 
-            if (roll < MulticastChances[4])
-                return 4;
-            else if (roll < MulticastChances[3])
-                return 3;
-            else if (roll < MulticastChances[2])
-                return 2;
+            if      (roll < MulticastChances[4]) return 4;
+            else if (roll < MulticastChances[3]) return 3;
+            else if (roll < MulticastChances[2]) return 2;
 
             return 1;
         }
