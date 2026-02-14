@@ -4,7 +4,45 @@ using System.Reflection;
 
 namespace MageKit.Debug
 {
-    public static class DebugPatches { }
+    [HarmonyPatch]
+    public static class DebugPatches
+    {
+        private static void LogInstantiatedObject(Object obj)
+        {
+            if (obj is GameObject go)
+            {
+                Plugin.Log.LogInfo($"[Instantiate] GameObject: '{go.name}' (active: {go.activeSelf}, layer: {go.layer}, children: {go.transform.childCount})");
+                foreach (var renderer in go.GetComponentsInChildren<Renderer>(true))
+                {
+                    Plugin.Log.LogInfo($"  Renderer: '{renderer.name}' enabled={renderer.enabled} material={renderer.material?.name}");
+                }
+            }
+            else
+            {
+                Plugin.Log.LogInfo($"[Instantiate] Object: '{obj?.GetType().Name}'");
+            }
+        }
+
+        [HarmonyPatch(typeof(Object), nameof(Object.Instantiate), [typeof(Object)])]
+        public static class Patch_Object_Instantiate_Object
+        {
+            static void Postfix(Object __result, Object __0)
+            {
+                Plugin.Log.LogInfo($"[Instantiate] Input: '{__0?.GetType().Name}' name='{(__0 is GameObject go ? go.name : __0?.ToString())}'");
+                LogInstantiatedObject(__result);
+            }
+        }
+
+        [HarmonyPatch(typeof(Object), nameof(Object.Instantiate), [typeof(Object), typeof(Vector3), typeof(Quaternion)])]
+        public static class Patch_Object_Instantiate_Object_Position
+        {
+            static void Postfix(Object __result, Object __0, Vector3 __1, Quaternion __2)
+            {
+                Plugin.Log.LogInfo($"[Instantiate] Input: '{__0?.GetType().Name}' name='{(__0 is GameObject go ? go.name : __0?.ToString())}' pos={__1} rot={__2.eulerAngles}");
+                LogInstantiatedObject(__result);
+            }
+        }
+    }
 
     // Show damage hitboxes
     [HarmonyPatch(typeof(GameUtility), "GetAllInSphere")]

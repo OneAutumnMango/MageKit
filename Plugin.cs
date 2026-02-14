@@ -61,7 +61,16 @@ namespace MageKit
         private void BuildModUI()
         {
             AddRandomiserButton();
-            AddTempSpellRainSpawnButton();
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F6))
+            {
+                var localPlayer = MageQuitModFramework.Spells.SpellModificationSystem.GetLocalPlayer();
+                if (localPlayer != null)
+                    SpellRain.SpellRainSpawner.SpawnRandomPickupNearPlayer(localPlayer.playerNumber);
+            }
         }
 
         private void OnGUI()
@@ -69,24 +78,6 @@ namespace MageKit
             if (CurrentUpgradeOptions.Count > 0)
             {
                 DrawUpgradeOptions();
-            }
-        }
-
-        private void AddTempSpellRainSpawnButton()
-        {
-            var clicked = UIComponents.Button("Debug: Spawn Random Spell");
-            if (clicked)
-            {
-                var localPlayer = MageQuitModFramework.Spells.SpellModificationSystem.GetLocalPlayer();
-                if (localPlayer != null)
-                {
-                    SpellRain.SpellRainSpawner.SpawnRandomPickupNearPlayer(localPlayer.playerNumber, distance: 3f);
-                    Log.LogInfo($"Spawned random spell near player {localPlayer.playerNumber}");
-                }
-                else
-                {
-                    Log.LogWarning("Cannot spawn spell: local player not found");
-                }
             }
         }
 

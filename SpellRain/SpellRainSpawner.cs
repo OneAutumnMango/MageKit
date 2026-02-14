@@ -34,10 +34,11 @@ namespace MageKit.SpellRain
                     var crystal = go.GetComponent<CrystalObject>();
                     if (crystal != null)
                     {
-                        // Use dummy values for Init, just to ensure it's initialized
                         crystal.Init(null, 0, SpellName.Brrage, CrystalObject.CrystalState.Inert, null, false);
-                        // Clone the prefab so the cached one is never destroyed
+                        crystal.TransitionState(CrystalObject.CrystalState.Preserved);
+
                         GameObject prefabCopy = Object.Instantiate(go);
+                        // GameObject prefabCopy = Object.Instantiate(crystal.preserveTokenizePrefab) as GameObject;  // when spawned
                         prefabCopy.SetActive(false);
                         Object.DontDestroyOnLoad(prefabCopy);
                         crystalPrefab = prefabCopy;
@@ -64,19 +65,38 @@ namespace MageKit.SpellRain
             }
 
             GameObject newCrystal = Object.Instantiate(prefab, position, Quaternion.identity);
-
             newCrystal.SetActive(true);
 
-            // Disable original behavior
+            newCrystal.layer = 12;
+            foreach (Transform child in newCrystal.GetComponentsInChildren<Transform>(true))
+            {
+                child.gameObject.layer = 12;
+                string name = child.gameObject.name.ToLower();
+                if (name.Contains("spell_icon_plate"))
+                {
+                    child.gameObject.SetActive(true);
+                    // Activate parent hierarchy
+                    Transform parent = child.parent;
+                    while (parent != null)
+                    {
+                        parent.gameObject.SetActive(true);
+                        parent = parent.parent;
+                    }
+                }
+            }
+
+            // Disable CrystalObject behavior
             CrystalObject crystalObj = newCrystal.GetComponent<CrystalObject>();
             if (crystalObj != null)
+            {
+                // Update visuals BEFORE disabling component
+                SetupCrystalVisuals(newCrystal, spell, crystalObj);
                 crystalObj.enabled = false;
+            }
 
             SpellRainHelper pickup = newCrystal.AddComponent<SpellRainHelper>();
             pickup.spellToGive = spell;
             pickup.targetSlot  = targetSlot;
-
-            SetupCrystalVisuals(newCrystal, spell);
 
             Plugin.Log.LogInfo($"Spawned pickup crystal at {position} with spell: {spell}");
             return newCrystal;
@@ -89,7 +109,7 @@ namespace MageKit.SpellRain
             return SpawnPickupCrystal(position, randomSpell, targetSlot);
         }
 
-        public static GameObject SpawnPickupNearPlayer(int playerNumber, SpellName spell, float distance = 3f, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject SpawnPickupNearPlayer(int playerNumber, SpellName spell, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
         {
             if (!PlayerManager.players.ContainsKey(playerNumber))
             {
@@ -108,7 +128,7 @@ namespace MageKit.SpellRain
             return SpawnPickupCrystal(spawnPos, spell, targetSlot);
         }
 
-        public static GameObject SpawnRandomPickupNearPlayer(int playerNumber, float distance = 3f, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject SpawnRandomPickupNearPlayer(int playerNumber, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
         {
             var allSpells = System.Enum.GetValues(typeof(SpellName));
             SpellName randomSpell = (SpellName)allSpells.GetValue(Random.Range(0, allSpells.Length));
@@ -136,7 +156,7 @@ namespace MageKit.SpellRain
             return spawned;
         }
 
-        private static void SetupCrystalVisuals(GameObject crystal, SpellName spell)
+        private static void SetupCrystalVisuals(GameObject crystal, SpellName spell, CrystalObject co)
         {
             try
             {
@@ -144,21 +164,27 @@ namespace MageKit.SpellRain
                 {
                     Spell spellData = Globals.spell_manager.spell_table[spell];
                     Sprite icon = spellData.icon;
-                    var renderers = crystal.GetComponentsInChildren<Renderer>(true);
-                    foreach (var renderer in renderers)
+
+                    if (co != null && co.preservedSpellRenderer != null)
                     {
-                        if (renderer.name.Contains("Preserved") || renderer.name.Contains("Icon"))
+                        Material mat = co.preservedSpellRenderer.materials[0];
+                        if (icon != null)
                         {
-                            Material mat = renderer.material;
-                            if (icon != null)
-                            {
-                                mat.mainTexture = icon.texture;
-                                mat.SetTexture(MaterialHashes.EmissionMap, icon.texture);
-                                mat.SetTexture(MaterialHashes.OcclusionMap, icon.texture);
-                                mat.SetTexture(MaterialHashes.HeightMap, icon.texture);
-                                mat.SetColor(MaterialHashes.EmissionColor, Globals.iconEmissionColors[(int)spellData.element]);
-                            }
+                            mat.mainTexture = icon.texture;
+                            mat.SetTexture(MaterialHashes.EmissionMap, icon.texture);
+                            mat.SetTexture(MaterialHashes.OcclusionMap, icon.texture);
+                            mat.SetTexture(MaterialHashes.HeightMap, icon.texture);
+                            mat.SetColor(MaterialHashes.EmissionColor, Globals.iconEmissionColors[(int)spellData.element]);
                         }
+
+                        // Ensure the spell icon plate is visible
+                        if (co.preservedSpellRenderer.gameObject != null)
+                        {
+                            co.preservedSpellRenderer.gameObject.SetActive(true);
+                        }
+                    }
+                    else {
+                        Plugin.Log.LogWarning($"CrystalObject or preservedSpellRenderer not found on crystal prefab for spell: {spell}");
                     }
                     // // Optionally instantiate preserveTokenizePrefab if available
                     // if (crystal.GetComponent<CrystalObject>() is CrystalObject co && co.preserveTokenizePrefab != null)
