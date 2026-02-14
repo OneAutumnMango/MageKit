@@ -46,6 +46,7 @@ namespace MageKit
             _moduleManager.RegisterModule(new Randomiser.RandomiserModule());
             _moduleManager.RegisterModule(new Juggernaut.JuggernautModule());
             _moduleManager.RegisterModule(new Multicast.MulticastModule());
+            _moduleManager.RegisterModule(new SpellRain.SpellRainModule());
 
             ModUIRegistry.RegisterMod(
                 modDisplayName,
@@ -59,19 +60,8 @@ namespace MageKit
 
         private void BuildModUI()
         {
-            var (value, clicked) = UIComponents.TextFieldWithButton(
-                "Randomiser Seed:", seedInput,
-                "Set Seed", out bool buttonClicked
-            );
-
-            seedInput = value;
-
-            if (buttonClicked)
-            {
-                int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);
-                InitialiseRandomiserRng();
-                Log.LogInfo($"[Randomiser] Set seed to '{seedInput}' (hash: {seedInt})");
-            }
+            AddRandomiserButton();
+            AddTempSpellRainSpawnButton();
         }
 
         private void OnGUI()
@@ -79,6 +69,40 @@ namespace MageKit
             if (CurrentUpgradeOptions.Count > 0)
             {
                 DrawUpgradeOptions();
+            }
+        }
+
+        private void AddTempSpellRainSpawnButton()
+        {
+            var clicked = UIComponents.Button("Debug: Spawn Random Spell");
+            if (clicked)
+            {
+                var localPlayer = MageQuitModFramework.Spells.SpellModificationSystem.GetLocalPlayer();
+                if (localPlayer != null)
+                {
+                    SpellRain.SpellRainSpawner.SpawnRandomPickupNearPlayer(localPlayer.playerNumber, distance: 3f);
+                    Log.LogInfo($"Spawned random spell near player {localPlayer.playerNumber}");
+                }
+                else
+                {
+                    Log.LogWarning("Cannot spawn spell: local player not found");
+                }
+            }
+        }
+
+        private void AddRandomiserButton()
+        {
+            var (value, clicked) = UIComponents.TextFieldWithButton(
+                "Randomiser Seed:", seedInput, "Set Seed"
+            );
+
+            seedInput = value;
+
+            if (clicked)
+            {
+                int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);
+                InitialiseRandomiserRng();
+                Log.LogInfo($"[Randomiser] Set seed to '{seedInput}' (hash: {seedInt})");
             }
         }
 
