@@ -29,7 +29,6 @@ namespace MageKit.SpellRain
                 }
                 else
                 {
-                    // Use GameUtility.Instantiate to spawn a CrystalObject from the game's prefab system
                     GameObject go = GameUtility.Instantiate("Units/Crystal", Vector3.zero, Quaternion.identity, 0);
                     var crystal = go.GetComponent<CrystalObject>();
                     if (crystal != null)
@@ -38,7 +37,6 @@ namespace MageKit.SpellRain
                         crystal.TransitionState(CrystalObject.CrystalState.Preserved);
 
                         GameObject prefabCopy = Object.Instantiate(go);
-                        // GameObject prefabCopy = Object.Instantiate(crystal.preserveTokenizePrefab) as GameObject;  // when spawned
                         prefabCopy.SetActive(false);
                         Object.DontDestroyOnLoad(prefabCopy);
                         crystalPrefab = prefabCopy;
@@ -65,8 +63,9 @@ namespace MageKit.SpellRain
             }
 
             GameObject newCrystal = Object.Instantiate(prefab, position, Quaternion.identity);
-            newCrystal.SetActive(true);
 
+            // make copied spell mesh visible
+            newCrystal.SetActive(true);
             newCrystal.layer = 12;
             foreach (Transform child in newCrystal.GetComponentsInChildren<Transform>(true))
             {
@@ -154,6 +153,56 @@ namespace MageKit.SpellRain
             }
 
             return spawned;
+        }
+
+        /// <summary>
+        /// Network-safe spawn near player. Only master client spawns, all clients see it.
+        /// </summary>
+        public static GameObject NetworkSpawnPickupNearPlayer(int playerNumber, SpellName spell, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
+        {
+            if (!PlayerManager.players.ContainsKey(playerNumber))
+            {
+                Plugin.Log.LogWarning($"Player {playerNumber} not found!");
+                return null;
+            }
+
+            GameObject wizard = PlayerManager.players[playerNumber].wizard;
+            if (wizard == null)
+            {
+                Plugin.Log.LogWarning($"Player {playerNumber} has no wizard!");
+                return null;
+            }
+
+            Vector3 spawnPos = wizard.transform.position + wizard.transform.forward * distance;
+            return SpellRainNetworking.NetworkSpawnPickup(spawnPos, spell, targetSlot);
+        }
+
+        /// <summary>
+        /// Network-safe random spawn near player. Only master client spawns, all clients see it.
+        /// </summary>
+        public static GameObject NetworkSpawnRandomPickupNearPlayer(int playerNumber, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
+        {
+            var allSpells = System.Enum.GetValues(typeof(SpellName));
+            SpellName randomSpell = (SpellName)allSpells.GetValue(Random.Range(0, allSpells.Length));
+            return NetworkSpawnPickupNearPlayer(playerNumber, randomSpell, distance, targetSlot);
+        }
+
+        /// <summary>
+        /// Network-safe spawn at arbitrary position. Only master client spawns, all clients see it.
+        /// </summary>
+        public static GameObject NetworkSpawnPickup(Vector3 position, SpellName spell, SpellButton targetSlot = SpellButton.Secondary)
+        {
+            return SpellRainNetworking.NetworkSpawnPickup(position, spell, targetSlot);
+        }
+
+        /// <summary>
+        /// Network-safe random spawn at arbitrary position. Only master client spawns, all clients see it.
+        /// </summary>
+        public static GameObject NetworkSpawnRandomPickupCrystal(Vector3 position, SpellButton targetSlot = SpellButton.Secondary)
+        {
+            var allSpells = System.Enum.GetValues(typeof(SpellName));
+            SpellName randomSpell = (SpellName)allSpells.GetValue(Random.Range(0, allSpells.Length));
+            return NetworkSpawnPickup(position, randomSpell, targetSlot);
         }
 
         private static void SetupCrystalVisuals(GameObject crystal, SpellName spell, CrystalObject co)

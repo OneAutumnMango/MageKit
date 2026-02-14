@@ -9,11 +9,15 @@ namespace MageKit.SpellRain
         protected override void OnLoad(HarmonyLib.Harmony harmony)
         {
             PatchGroup(harmony, typeof(SpellRainPatches));
+            SpellRainNetworking.Initialize();
+            SpellRainManager.Initialize();
         }
 
         protected override void OnUnload(HarmonyLib.Harmony harmony)
         {
             harmony.UnpatchSelf();
+            SpellRainNetworking.Cleanup();
+            SpellRainManager.Cleanup();
         }
     }
 }

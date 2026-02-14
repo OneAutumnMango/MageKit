@@ -69,7 +69,7 @@ namespace MageKit
             {
                 var localPlayer = MageQuitModFramework.Spells.SpellModificationSystem.GetLocalPlayer();
                 if (localPlayer != null)
-                    SpellRain.SpellRainSpawner.SpawnRandomPickupNearPlayer(localPlayer.playerNumber);
+                    SpellRain.SpellRainSpawner.NetworkSpawnRandomPickupNearPlayer(localPlayer.playerNumber);
             }
         }
 

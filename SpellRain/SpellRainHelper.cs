@@ -7,6 +7,7 @@ namespace MageKit.SpellRain
     {
         public SpellName spellToGive;
         public SpellButton targetSlot = SpellButton.Secondary;
+        public string networkId; // Unique ID for network synchronization
         private bool pickedUp = false;
         private SoundPlayer soundPlayer;
 
@@ -65,6 +66,9 @@ namespace MageKit.SpellRain
             }
 
             Plugin.Log.LogInfo($"Player {pickerOwner} picked up one-time spell: {spellToGive} in slot {targetSlot}");
+
+            // Notify network that this pickup was collected
+            SpellRainNetworking.NetworkPickup(networkId, pickerOwner);
 
             Destroy(gameObject, 0.1f);
         }
