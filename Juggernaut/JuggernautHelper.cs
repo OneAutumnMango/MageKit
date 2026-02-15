@@ -73,6 +73,12 @@ namespace MageKit.Juggernaut
                 .SetDelay(3f)
                 .SetEase(Ease.OutBack);
 
+            wc.aimer.transform.DOKill();
+            wc.aimer.transform
+                .DOScale(1.3f, 0.7f)
+                .SetDelay(3f)
+                .SetEase(Ease.OutBack);
+
             // Make wizard bright/glowing
             Color[] customColors = [new Color(1f, 0.9f, 0.2f), Color.white];
             GameUtility.SetWizardColor(customColors, wc.gameObject, true); // true = extraBloom

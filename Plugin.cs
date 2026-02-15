@@ -61,12 +61,12 @@ namespace MageKit
         {
             var (value, clicked) = UIComponents.TextFieldWithButton(
                 "Randomiser Seed:", seedInput,
-                "Set Seed", out bool buttonClicked
+                "Set Seed"
             );
 
             seedInput = value;
 
-            if (buttonClicked)
+            if (clicked)
             {
                 int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);
                 InitialiseRandomiserRng();

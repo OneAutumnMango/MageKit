@@ -14,10 +14,10 @@ namespace MageKit.Boosted
         {
             BoostedPatch.PopulateManualModifierRejections();
 
-            if (GameDataInitializer.IsLoaded)
+            if (GameEventsObserver.IsGameDataLoaded)
                 ApplyBoostedPatches(harmony);
             else
-                GameDataInitializer.OnGameDataLoaded += () => ApplyBoostedPatches(harmony);
+                GameEventsObserver.SubscribeToGameDataLoaded(() => ApplyBoostedPatches(harmony));
         }
 
         private void ApplyBoostedPatches(Harmony harmony)
