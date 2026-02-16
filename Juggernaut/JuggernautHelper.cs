@@ -66,12 +66,27 @@ namespace MageKit.Juggernaut
 
         public static void ApplyJuggernautVisuals(WizardController wc)
         {
-            wc.transform.DOKill(); // prevent stacking if triggered again
+            float scale = 1.3f;
 
+            wc.transform.DOKill(); // prevent stacking if triggered again
             wc.transform  // make big
-                .DOScale(1.3f, 0.7f)
+                .DOScale(scale, 0.7f)
                 .SetDelay(3f)
                 .SetEase(Ease.OutBack);
+
+            wc.aimer.transform.DOKill();
+            wc.aimer.transform
+                .DOScale(scale, 0.7f)
+                .SetDelay(3f)
+                .SetEase(Ease.OutBack);
+
+            // Instantly scale CapsuleCollider to match scale
+            var collider = wc.GetComponent<CapsuleCollider>();
+            if (collider != null)
+            {
+                collider.height *= scale;
+                collider.radius *= scale;
+            }
 
             // Make wizard bright/glowing
             Color[] customColors = [new Color(1f, 0.9f, 0.2f), Color.white];

@@ -52,7 +52,7 @@ namespace MageKit.Boosted
                 nameof(Prefix_SpellObjectInit),
                 BindingFlags.Static | BindingFlags.NonPublic
             );
-            SpellModificationSystem.PatchAllSpellObjectInit(harmony, prefixMethod);
+            SpellModificationSystem.PatchAllSpellObjects(harmony, "Init", prefixMethod);
         }
 
         public static void PopulateManualModifierRejections()

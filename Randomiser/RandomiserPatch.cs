@@ -15,7 +15,7 @@ namespace MageKit.Randomiser
         public static void PatchAll(Harmony harmony)
         {
             harmony.PatchAll(typeof(RandomiserPatch));
-            SpellModificationSystem.PatchAllSpellObjectInit(harmony,
+            SpellModificationSystem.PatchAllSpellObjects(harmony, "Init",
                 prefixMethod: typeof(RandomiserPatch).GetMethod(nameof(Prefix_SpellObjectInit),
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
         }
