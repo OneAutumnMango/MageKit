@@ -252,7 +252,7 @@ namespace MageKit.Balance
     // wormhole is a move speed buff now
     static class WormholePatchHelper
     {
-        private static readonly float speedBuff = 1.8f;
+        private static readonly float speedBuff = 2f;
         private static WizardController wc;
 
         public static void localSpellObjectStart(GameObject wizard, float duration = 5f)
@@ -276,8 +276,10 @@ namespace MageKit.Balance
     [HarmonyPatch(typeof(WormholeObject), "Init")]
     static class Patch_WormholeObject_Init
     {
+        public static bool enabled = true;
         static bool Prefix(WormholeObject __instance, Identity identity)
         {
+            if (!enabled) return true;
             WormholePatchHelper.localSpellObjectStart(identity.gameObject);
             global::UnityEngine.Object.Destroy(__instance.gameObject);
 

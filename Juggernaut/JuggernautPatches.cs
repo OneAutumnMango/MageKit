@@ -112,7 +112,7 @@ namespace MageKit.Juggernaut
 
             Identity id = __instance.GetComponent<Identity>();
             if (id.owner == SpellModificationSystem.GetLocalPlayer().playerNumber)
-                impulse *= 0.25f;
+                impulse *= 0.45f;
         }
     }
 }

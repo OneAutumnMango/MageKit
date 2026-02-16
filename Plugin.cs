@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MageKit
 {
-    [BepInPlugin("com.magequit.magekit", "MageKit", "1.0.0")]
+    [BepInPlugin("com.magequit.magekit", "MageKit", "2.3.0")]
     [BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BaseUnityPlugin
     {
@@ -59,6 +59,20 @@ namespace MageKit
 
         private void BuildModUI()
         {
+            AddRandomiserButton();
+            AddWormholeToggleButton();
+        }
+
+        private void OnGUI()
+        {
+            if (CurrentUpgradeOptions.Count > 0)
+            {
+                DrawUpgradeOptions();
+            }
+        }
+
+        private void AddRandomiserButton()
+        {
             var (value, clicked) = UIComponents.TextFieldWithButton(
                 "Randomiser Seed:", seedInput,
                 "Set Seed"
@@ -74,11 +88,13 @@ namespace MageKit
             }
         }
 
-        private void OnGUI()
+        private void AddWormholeToggleButton()
         {
-            if (CurrentUpgradeOptions.Count > 0)
+            string label = $"Wormhole Patch: {(Balance.Patch_WormholeObject_Init.enabled ? "ON" : "OFF")}";
+            if (UIComponents.Button(label))
             {
-                DrawUpgradeOptions();
+                Balance.Patch_WormholeObject_Init.enabled = !Balance.Patch_WormholeObject_Init.enabled;
+                Log.LogInfo($"[Balance] Wormhole patch toggled to {(Balance.Patch_WormholeObject_Init.enabled ? "ON" : "OFF")}");
             }
         }
 

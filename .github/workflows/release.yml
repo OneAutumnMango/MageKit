@@ -19,6 +19,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Fail if tag does not match Plugin version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -e
+          TAG_NAME="${GITHUB_REF##*/}"
+          VERSION=$(grep -oP '\[BepInPlugin\([^,]+, *[^,]+, *"\K[^"]+' LastManStanding/src/Plugin.cs)
+          echo "Tag: $TAG_NAME"
+          echo "Plugin version: $VERSION"
+          if [ "$TAG_NAME" != "$VERSION" ]; then
+            echo "::error::Tag ($TAG_NAME) does not match Plugin version ($VERSION)" >&2
+            exit 1
+          fi
+
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5
         with:
