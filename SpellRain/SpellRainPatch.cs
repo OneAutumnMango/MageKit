@@ -20,10 +20,16 @@ namespace MageKit.SpellRain
             if (!SpellRainSpawner.oneTimeSpells.TryGetValue(owner, out var playerSpells)) return;
             if (!playerSpells.TryGetValue(button, out var oneTime)) return;
 
-            if (!oneTime.used)
+            // if (Globals.spell_manager.lastSpells.ContainsKey(owner))
+            // {
+            //     oneTime.spell = Globals.spell_manager.lastSpells[owner];
+            // }
+
+            if (oneTime.remainingCasts > 0)
             {
-                oneTime.used = true;
-                Plugin.Log.LogInfo($"Player {owner} used one-time spell: {oneTime.spellName}");
+                oneTime.remainingCasts--;
+                oneTime.used = true; // Keep for backwards compatibility
+                Plugin.Log.LogInfo($"Player {owner} used one-time spell: {oneTime.spellName} (Remaining casts: {oneTime.remainingCasts})");
             }
         }
 
@@ -46,7 +52,12 @@ namespace MageKit.SpellRain
 
                 foreach (var kvp in playerSpells)
                 {
-                    if (kvp.Value.used)
+                    // if (kvp.Value.spell.deathTimer > Time.time)  DOESNYT WORK NEED SPELLOBJECT INSTANCE
+                    // {
+                    //     continue; // Skip removing spell if it has a death timer that hasn't expired
+                    // }
+                    // Only remove spell when all casts have been used
+                    if (kvp.Value.remainingCasts <= 0)
                     {
                         toRemove.Add(kvp.Key);
                     }
@@ -59,14 +70,18 @@ namespace MageKit.SpellRain
 
                     if (PlayerManager.players.TryGetValue(owner, out var player))
                     {
+                        if (player.cooldowns.ContainsKey(spell.spellName))
+                        {
+                            if (player.cooldowns[spell.spellName] is Cooldown cooldown
+                                && cooldown.IsCooldownAvailable() != 1)
+                                continue; // skip if additional not on cooldown
+
+                            player.cooldowns.Remove(spell.spellName);
+                        }
+
                         if (player.spell_library.ContainsKey(spellButton))
                         {
                             player.spell_library.Remove(spellButton);
-                        }
-
-                        if (player.cooldowns.ContainsKey(spell.spellName))
-                        {
-                            player.cooldowns.Remove(spell.spellName);
                         }
                     }
 

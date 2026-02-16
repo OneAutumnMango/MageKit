@@ -1,0 +1,29 @@
+## Spell Rain
+spells picked up need:
+- additional casts
+- dynamic spellbutton
+- not crap themselves when you own the spell already (ignore pickup)
+
+start with only melee (+ movement?)
+
+
+## Misc
+
+### Easy
+
+cap knockback on melee, possibly windup too
+
+reduce jug knockback, more hp less speed?  scale per rounds?
+
+ban some northpull options
+
+nerf petrify, chainmail
+
+
+### Annoying
+
+let new wormhole be boosted
+disable wormhole rpc
+make patch toggleable
+
+fix watercannon as jug

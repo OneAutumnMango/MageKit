@@ -50,12 +50,12 @@ namespace MageKit.SpellRain
         /// <summary>
         /// Network-safe spawn. Only master client actually spawns, then tells all clients.
         /// </summary>
-        public static GameObject NetworkSpawnPickup(Vector3 position, SpellName spell, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject NetworkSpawnPickup(Vector3 position, SpellName spell)
         {
             // Generate unique ID for this pickup
             string pickupId = System.Guid.NewGuid().ToString();
 
-            GameObject localPickup = SpawnPickupLocal(pickupId, position, spell, targetSlot);
+            GameObject localPickup = SpawnPickupLocal(pickupId, position, spell);
 
             if (!PhotonNetwork.connected)
             {
@@ -73,8 +73,7 @@ namespace MageKit.SpellRain
             _rpcManager?.SendRpc(SPAWN_RPC, PhotonTargets.Others,
                 pickupId,
                 position.x, position.y, position.z,
-                (int)spell,
-                (int)targetSlot);
+                (int)spell);
 
             Plugin.Log.LogInfo($"[SpellRainNetworking] Master spawned pickup {pickupId} and notified others");
 
@@ -86,7 +85,7 @@ namespace MageKit.SpellRain
         /// </summary>
         private static void HandleSpawnRpc(object[] args)
         {
-            if (args.Length < 6)
+            if (args.Length < 5)
             {
                 Plugin.Log.LogError($"[SpellRainNetworking] Invalid spawn RPC args: {args.Length}");
                 return;
@@ -99,10 +98,9 @@ namespace MageKit.SpellRain
                 float y             = System.Convert.ToSingle(args[2]);
                 float z             = System.Convert.ToSingle(args[3]);
                 SpellName spell     = (SpellName)System.Convert.ToInt32(args[4]);
-                SpellButton slot    = (SpellButton)System.Convert.ToInt32(args[5]);
 
                 Vector3 position = new Vector3(x, y, z);
-                SpawnPickupLocal(pickupId, position, spell, slot);
+                SpawnPickupLocal(pickupId, position, spell);
 
                 Plugin.Log.LogInfo($"[SpellRainNetworking] Spawned pickup {pickupId} from RPC at {position}");
             }
@@ -115,9 +113,9 @@ namespace MageKit.SpellRain
         /// <summary>
         /// Local spawn helper (used by both master and clients)
         /// </summary>
-        private static GameObject SpawnPickupLocal(string pickupId, Vector3 position, SpellName spell, SpellButton targetSlot)
+        private static GameObject SpawnPickupLocal(string pickupId, Vector3 position, SpellName spell)
         {
-            GameObject pickup = SpellRainSpawner.SpawnPickupCrystal(position, spell, targetSlot);
+            GameObject pickup = SpellRainSpawner.SpawnPickupCrystal(position, spell);
             if (pickup != null)
             {
                 // Attach network ID to the pickup

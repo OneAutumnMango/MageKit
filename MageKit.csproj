@@ -62,13 +62,13 @@
 		<Reference Include="DOTween">
 			<HintPath>lib\DOTween.dll</HintPath>
 		</Reference>
-	</ItemGroup>
+	<!-- </ItemGroup> -->
 
-	<ItemGroup Condition="Exists('..\MageQuitModFramework\MageQuitModFramework\MageQuitModFramework.csproj')">
+	<!-- <ItemGroup Condition="Exists('..\MageQuitModFramework\MageQuitModFramework\MageQuitModFramework.csproj')">
 		<ProjectReference Include="..\MageQuitModFramework\MageQuitModFramework\MageQuitModFramework.csproj" />
-	</ItemGroup>
+	</ItemGroup> -->
 
-	<ItemGroup Condition="!Exists('..\MageQuitModFramework\MageQuitModFramework\MageQuitModFramework.csproj')">
+	<!-- <ItemGroup Condition="!Exists('..\MageQuitModFramework\MageQuitModFramework\MageQuitModFramework.csproj')"> -->
 		<Reference Include="MageQuitModFramework">
 			<HintPath>lib\MageQuitModFramework.dll</HintPath>
 		</Reference>

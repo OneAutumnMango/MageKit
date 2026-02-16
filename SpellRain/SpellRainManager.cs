@@ -57,10 +57,48 @@ namespace MageKit.SpellRain
 
         private static void OnRoundStart()
         {
+            // Clear all one-time spells and their cooldowns at round start
+            ClearAllSpells();
+
             if (_instance != null && EnableAutoSpawn)
             {
                 _instance.StartSpawnCoroutine();
             }
+        }
+
+        private static void ClearAllSpells()
+        {
+            foreach (var playerEntry in SpellRainSpawner.oneTimeSpells)
+            {
+                int playerOwner = playerEntry.Key;
+                if (PlayerManager.players.TryGetValue(playerOwner, out var player))
+                {
+                    foreach (var spellEntry in playerEntry.Value)
+                    {
+                        SpellButton button = spellEntry.Key;
+                        SpellName spellName = spellEntry.Value.spellName;
+
+                        // Remove from spell library
+                        if (player.spell_library.ContainsKey(button))
+                        {
+                            player.spell_library.Remove(button);
+                        }
+
+                        // Remove cooldown
+                        if (player.cooldowns.ContainsKey(spellName))
+                        {
+                            player.cooldowns.Remove(spellName);
+                        }
+
+                        // Hide HUD button
+                        SpellRainHelper.HideHudButton(button);
+                    }
+                }
+            }
+
+            // Clear the tracking dictionary
+            SpellRainSpawner.oneTimeSpells.Clear();
+            Plugin.Log.LogInfo("[SpellRainManager] Cleared all one-time spells at round start");
         }
 
         private static void OnRoundEnd()
@@ -109,7 +147,7 @@ namespace MageKit.SpellRain
             float z = Random.Range(MinZ, MaxZ);
             Vector3 position = new Vector3(x, SpawnHeight, z);
 
-            GameObject pickup = SpellRainSpawner.NetworkSpawnRandomPickupCrystal(position, SpellButton.Secondary);
+            GameObject pickup = SpellRainSpawner.NetworkSpawnRandomPickupCrystal(position);
             if (pickup != null)
             {
                 _spawnedPickups.Add(pickup);

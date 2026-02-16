@@ -7,7 +7,9 @@ namespace MageKit.SpellRain
     {
         public SpellName spellName;
         public SpellButton button;
-        public bool used = false;
+        // public Spell spell;
+        public int remainingCasts = 1;  // How many casts remain before spell is removed
+        public bool used = false;       // Deprecated: kept for backwards compatibility
     }
 
     public static class SpellRainSpawner
@@ -69,7 +71,7 @@ namespace MageKit.SpellRain
             }
         }
 
-        public static GameObject SpawnPickupCrystal(Vector3 position, SpellName spell, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject SpawnPickupCrystal(Vector3 position, SpellName spell)
         {
             GameObject prefab = GetCrystalPrefab();
             if (prefab == null)
@@ -114,20 +116,19 @@ namespace MageKit.SpellRain
 
             SpellRainHelper pickup = newCrystal.AddComponent<SpellRainHelper>();
             pickup.spellToGive = spell;
-            pickup.spellButton  = targetSlot;
 
             Plugin.Log.LogInfo($"Spawned pickup crystal at {position} with spell: {spell}");
             return newCrystal;
         }
 
-        public static GameObject SpawnRandomPickupCrystal(Vector3 position, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject SpawnRandomPickupCrystal(Vector3 position)
         {
             var allSpells = System.Enum.GetValues(typeof(SpellName));
             SpellName randomSpell = (SpellName)allSpells.GetValue(Random.Range(0, allSpells.Length));
-            return SpawnPickupCrystal(position, randomSpell, targetSlot);
+            return SpawnPickupCrystal(position, randomSpell);
         }
 
-        public static GameObject SpawnPickupNearPlayer(int playerNumber, SpellName spell, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject SpawnPickupNearPlayer(int playerNumber, SpellName spell, float distance = 5f)
         {
             if (!PlayerManager.players.ContainsKey(playerNumber))
             {
@@ -143,17 +144,17 @@ namespace MageKit.SpellRain
             }
 
             Vector3 spawnPos = wizard.transform.position + wizard.transform.forward * distance;
-            return SpawnPickupCrystal(spawnPos, spell, targetSlot);
+            return SpawnPickupCrystal(spawnPos, spell);
         }
 
-        public static GameObject SpawnRandomPickupNearPlayer(int playerNumber, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject SpawnRandomPickupNearPlayer(int playerNumber, float distance = 5f)
         {
             var allSpells = System.Enum.GetValues(typeof(SpellName));
             SpellName randomSpell = (SpellName)allSpells.GetValue(Random.Range(0, allSpells.Length));
-            return SpawnPickupNearPlayer(playerNumber, randomSpell, distance, targetSlot);
+            return SpawnPickupNearPlayer(playerNumber, randomSpell, distance);
         }
 
-        public static List<GameObject> SpawnPickupCircle(Vector3 center, int count, float radius, SpellButton targetSlot = SpellButton.Secondary)
+        public static List<GameObject> SpawnPickupCircle(Vector3 center, int count, float radius)
         {
             List<GameObject> spawned = [];
 
@@ -164,7 +165,7 @@ namespace MageKit.SpellRain
                 Vector3 offset = new Vector3(Mathf.Cos(rad) * radius, 0f, Mathf.Sin(rad) * radius);
                 Vector3 spawnPos = center + offset;
 
-                GameObject crystal = SpawnRandomPickupCrystal(spawnPos, targetSlot);
+                GameObject crystal = SpawnRandomPickupCrystal(spawnPos);
                 if (crystal != null)
                 {
                     spawned.Add(crystal);
@@ -177,7 +178,7 @@ namespace MageKit.SpellRain
         /// <summary>
         /// Network-safe spawn near player. Only master client spawns, all clients see it.
         /// </summary>
-        public static GameObject NetworkSpawnPickupNearPlayer(int playerNumber, SpellName spell, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject NetworkSpawnPickupNearPlayer(int playerNumber, SpellName spell, float distance = 5f)
         {
             if (!PlayerManager.players.ContainsKey(playerNumber))
             {
@@ -193,35 +194,36 @@ namespace MageKit.SpellRain
             }
 
             Vector3 spawnPos = wizard.transform.position + wizard.transform.forward * distance;
-            return SpellRainNetworking.NetworkSpawnPickup(spawnPos, spell, targetSlot);
+            return SpellRainNetworking.NetworkSpawnPickup(spawnPos, spell);
         }
 
         /// <summary>
         /// Network-safe random spawn near player. Only master client spawns, all clients see it.
         /// </summary>
-        public static GameObject NetworkSpawnRandomPickupNearPlayer(int playerNumber, float distance = 5f, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject NetworkSpawnRandomPickupNearPlayer(int playerNumber, float distance = 5f)
         {
             var allSpells = System.Enum.GetValues(typeof(SpellName));
             SpellName randomSpell = (SpellName)allSpells.GetValue(Random.Range(0, allSpells.Length));
-            return NetworkSpawnPickupNearPlayer(playerNumber, randomSpell, distance, targetSlot);
+            return NetworkSpawnPickupNearPlayer(playerNumber, randomSpell, distance);
         }
 
         /// <summary>
         /// Network-safe spawn at arbitrary position. Only master client spawns, all clients see it.
         /// </summary>
-        public static GameObject NetworkSpawnPickup(Vector3 position, SpellName spell, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject NetworkSpawnPickup(Vector3 position, SpellName spell)
         {
-            return SpellRainNetworking.NetworkSpawnPickup(position, spell, targetSlot);
+            return SpellRainNetworking.NetworkSpawnPickup(position, spell);
         }
 
         /// <summary>
         /// Network-safe random spawn at arbitrary position. Only master client spawns, all clients see it.
         /// </summary>
-        public static GameObject NetworkSpawnRandomPickupCrystal(Vector3 position, SpellButton targetSlot = SpellButton.Secondary)
+        public static GameObject NetworkSpawnRandomPickupCrystal(Vector3 position)
         {
             var allSpells = System.Enum.GetValues(typeof(SpellName));
             SpellName randomSpell = (SpellName)allSpells.GetValue(Random.Range(0, allSpells.Length));
-            return NetworkSpawnPickup(position, randomSpell, targetSlot);
+            randomSpell = new SpellName[] { SpellName.StealTrap, SpellName.Decoy, SpellName.Rewind }[Random.Range(0, 3)]; // TESTING
+            return NetworkSpawnPickup(position, randomSpell);
         }
 
         private static void SetupCrystalVisuals(GameObject crystal, SpellName spell, CrystalObject co)
