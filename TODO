@@ -1,9 +1,4 @@
 ## Spell Rain
-spells picked up need:
-- additional casts
-- dynamic spellbutton
-- not crap themselves when you own the spell already (ignore pickup)
-
 start with only melee (+ movement?)
 
 
@@ -24,6 +19,5 @@ nerf petrify, chainmail
 
 let new wormhole be boosted
 disable wormhole rpc
-make patch toggleable
 
 fix watercannon as jug

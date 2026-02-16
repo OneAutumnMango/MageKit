@@ -62,6 +62,7 @@ namespace MageKit
         private void BuildModUI()
         {
             AddRandomiserButton();
+            AddWormholeToggleButton();
         }
 
         private void Update()
@@ -95,6 +96,16 @@ namespace MageKit
                 int seedInt = Randomiser.RandomiserHelpers.HashSeed(seedInput);
                 InitialiseRandomiserRng();
                 Log.LogInfo($"[Randomiser] Set seed to '{seedInput}' (hash: {seedInt})");
+            }
+        }
+
+        private void AddWormholeToggleButton()
+        {
+            string label = $"Wormhole Patch: {(Balance.Patch_WormholeObject_Init.enabled ? "ON" : "OFF")}";
+            if (UIComponents.Button(label))
+            {
+                Balance.Patch_WormholeObject_Init.enabled = !Balance.Patch_WormholeObject_Init.enabled;
+                Log.LogInfo($"[Balance] Wormhole patch toggled to {(Balance.Patch_WormholeObject_Init.enabled ? "ON" : "OFF")}");
             }
         }
 

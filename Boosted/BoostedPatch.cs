@@ -67,7 +67,8 @@ namespace MageKit.Boosted
                 [SpellName.FlashFlood] = ["RADIUS", "POWER", "Y_POWER", "windUp", "windDown"],
                 [SpellName.Preserve] = ["RADIUS", "POWER", "windUp", "windDown"],
                 [SpellName.BubbleBreaker] = ["RADIUS", "POWER", "windUp", "windDown"],
-                [SpellName.Urchain] = ["RADIUS", "POWER"]
+                [SpellName.Urchain] = ["RADIUS", "POWER"],
+                [SpellName.NorthPull] = ["RADIUS", "POWER"]
             };
         }
 
