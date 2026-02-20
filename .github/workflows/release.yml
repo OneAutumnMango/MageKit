@@ -24,7 +24,7 @@ jobs:
         run: |
           set -e
           TAG_NAME="${GITHUB_REF##*/}"
-          VERSION=$(grep -oP '\[BepInPlugin\([^,]+, *[^,]+, *"\K[^"]+' LastManStanding/src/Plugin.cs)
+          VERSION=$(grep -oP '\[BepInPlugin\([^,]+, *[^,]+, *"\K[^"]+' ./Plugin.cs)
           echo "Tag: $TAG_NAME"
           echo "Plugin version: $VERSION"
           if [ "$TAG_NAME" != "$VERSION" ]; then
