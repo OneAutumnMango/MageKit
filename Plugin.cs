@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MageKit
 {
-    [BepInPlugin("com.magequit.magekit", "MageKit", "2.3.0")]
+    [BepInPlugin("com.magequit.magekit", "MageKit", "2.3.1")]
     [BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BaseUnityPlugin
     {
@@ -41,7 +41,6 @@ namespace MageKit
 
             _moduleManager = ModManager.RegisterMod(modDisplayName, "com.magequit.magekit");
             _moduleManager.RegisterModule(new Balance.BalanceModule());
-            _moduleManager.RegisterModule(new Debug.DebugModule());
             _moduleManager.RegisterModule(new Boosted.BoostedModule());
             _moduleManager.RegisterModule(new Randomiser.RandomiserModule());
             _moduleManager.RegisterModule(new Juggernaut.JuggernautModule());
