@@ -60,15 +60,16 @@ namespace MageKit.Boosted
             // cooldown, windup, winddown, initialVelocity
             ManualModifierRejections = new Dictionary<SpellName, string[]>
             {
-                [SpellName.FrogOfLife] = ["DAMAGE", "POWER", "Y_POWER"],
-                [SpellName.Suspend] = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"],
-                [SpellName.Sapshot] = ["DAMAGE", "RADIUS", "POWER"],
-                [SpellName.Vacuum] = ["DAMAGE"],
-                [SpellName.FlashFlood] = ["RADIUS", "POWER", "Y_POWER", "windUp", "windDown"],
-                [SpellName.Preserve] = ["RADIUS", "POWER", "windUp", "windDown"],
+                [SpellName.FrogOfLife   ] = ["DAMAGE", "POWER", "Y_POWER"],
+                [SpellName.Suspend      ] = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"],
+                [SpellName.Sapshot      ] = ["DAMAGE", "RADIUS", "POWER"],
+                [SpellName.Vacuum       ] = ["DAMAGE"],
+                [SpellName.FlashFlood   ] = ["RADIUS", "POWER", "Y_POWER", "windUp", "windDown", "initialVelocity"],
+                [SpellName.Preserve     ] = ["RADIUS", "POWER", "windUp", "windDown"],
                 [SpellName.BubbleBreaker] = ["RADIUS", "POWER", "windUp", "windDown"],
-                [SpellName.Urchain] = ["RADIUS", "POWER"],
-                [SpellName.NorthPull] = ["RADIUS", "POWER"]
+                [SpellName.Urchain      ] = ["RADIUS", "POWER"],
+                [SpellName.NorthPull    ] = ["RADIUS", "POWER"],
+                [SpellName.WaterCannon  ] = ["RADIUS"]
             };
         }
 
@@ -136,19 +137,12 @@ namespace MageKit.Boosted
             {
                 case "cooldown" when mult <= 0.6f:
                     return false;
+                case "windup"   when mult <= 0.4f:
+                    return false;
             }
 
             if (!Globals.spell_manager.spell_table.TryGetValue(spellName, out Spell spell))
                 return true;
-
-            if (spell.spellButton == SpellButton.Movement)
-            {
-                switch (attribute)
-                {
-                    case "RADIUS" when mult >= 2f:
-                        return false;
-                }
-            }
 
             if (spell.spellButton == SpellButton.Melee)
             {
@@ -168,6 +162,24 @@ namespace MageKit.Boosted
                     case "cooldown" when mult <= 0.7f:
                     case "DAMAGE"   when mult >= 2f:
                     case "POWER"    when mult >= 2f:
+                        return false;
+                }
+            }
+
+            if (spell.spellButton == SpellButton.Movement)
+            {
+                switch (attribute)
+                {
+                    case "RADIUS" when mult >= 2f:
+                        return false;
+                }
+            }
+
+            if (spell.spellButton == SpellButton.Defensive)
+            {
+                switch (attribute)
+                {
+                    case "cooldown" when mult <= 0.7f:
                         return false;
                 }
             }
