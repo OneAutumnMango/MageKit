@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MageKit
 {
-    [BepInPlugin("com.magequit.magekit", "MageKit", "2.3.1")]
+    [BepInPlugin("com.magequit.magekit", "MageKit", "2.3.2")]
     [BepInDependency("com.magequit.modframework", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BaseUnityPlugin
     {

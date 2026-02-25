@@ -84,8 +84,8 @@ namespace MageKit.Juggernaut
             var collider = wc.GetComponent<CapsuleCollider>();
             if (collider != null)
             {
-                collider.height *= scale;
-                collider.radius *= scale;
+                collider.height *= ( scale - 1 ) / 2 + 1;
+                collider.radius *= ( scale - 1 ) / 2 + 1;
             }
 
             // Make wizard bright/glowing
