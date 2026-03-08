@@ -1,4 +1,5 @@
 using HarmonyLib;
+using MageQuitModFramework.Modding;
 using MageQuitModFramework.Utilities;
 using MageQuitModFramework.Data;
 using MageQuitModFramework.Spells;
@@ -71,6 +72,29 @@ namespace MageKit.Boosted
                 [SpellName.NorthPull    ] = ["RADIUS", "POWER"],
                 [SpellName.WaterCannon  ] = ["RADIUS"]
             };
+
+            if (IsAxeElementLoaded())
+                AddAxeElementRejections();
+        }
+
+        private static bool IsAxeElementLoaded() =>
+            ModManager.IsModuleLoaded("Axe Element");
+
+        private static void AddAxeElementRejections()
+        {
+            // Only ban attributes that the spell object doesn't actually read.
+            // Attributes with Base == 0 (e.g. Y_POWER on Bleed) are already
+            // filtered by IsUpgradeAllowed, so only explicit mismatches are listed.
+            //
+            // SpellName casts: 146=Rend, 147=Lunge, 148=Bleed, 149=Wild Axes,
+            //                  150=Riposte, 151=Blade Storm, 152=Sanguine Aura
+
+            ManualModifierRejections[(SpellName)146] = ["Y_POWER"];                              // Rend        uses DAMAGE, RADIUS, POWER
+            ManualModifierRejections[(SpellName)147] = ["RADIUS", "Y_POWER"];                    // Lunge       uses DAMAGE, POWER
+            ManualModifierRejections[(SpellName)149] = ["RADIUS", "Y_POWER"];                    // Wild Axes   uses DAMAGE, POWER
+            ManualModifierRejections[(SpellName)150] = ["RADIUS", "POWER", "Y_POWER"];           // Riposte     DAMAGE wired via this.DAMAGE; RADIUS/POWER/Y_POWER unused
+            ManualModifierRejections[(SpellName)151] = ["Y_POWER"];                              // Blade Storm uses DAMAGE, RADIUS, POWER
+            ManualModifierRejections[(SpellName)152] = ["POWER", "Y_POWER"];                     // Sanguine Aura uses DAMAGE, RADIUS
         }
 
         public static void PopulateSpellModifierTable()
