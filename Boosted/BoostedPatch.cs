@@ -41,7 +41,7 @@ namespace MageKit.Boosted
                     "HEAL"            => "Healing",
                     _ => Attribute
                 };
-                return $"{Spell}: {attrDisplay}";
+                return $"{SpellNameRegistry.GetDisplayNameOrDefault(Spell)}: {attrDisplay}";
             }
         }
 
