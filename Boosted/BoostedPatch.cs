@@ -31,7 +31,7 @@ namespace MageKit.Boosted
                 string attrDisplay = Attribute switch
                 {
                     "DAMAGE"          => "Damage",
-                    "RADIUS"          => "Impact Radius",
+                    "RADIUS"          => "Radius",
                     "POWER"           => "Knockback",
                     "Y_POWER"         => "Knockup",
                     "cooldown"        => "Cooldown",
