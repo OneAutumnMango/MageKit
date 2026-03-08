@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MageQuitModFramework.Modding;
 using MageQuitModFramework.Utilities;
 using MageQuitModFramework.Data;
@@ -73,14 +73,14 @@ namespace MageKit.Boosted
                 [SpellName.WaterCannon  ] = ["RADIUS"]
             };
 
-            if (IsAxeElementLoaded())
-                AddAxeElementRejections();
+            if (IsBloodElementLoaded())
+                AddBloodElementRejections();
         }
 
-        private static bool IsAxeElementLoaded() =>
-            ModManager.IsModuleLoaded("Axe Element");
+        private static bool IsBloodElementLoaded() =>
+            ModManager.IsModuleLoaded("Blood Element");
 
-        private static void AddAxeElementRejections()
+        private static void AddBloodElementRejections()
         {
             // Only ban attributes that the spell object doesn't actually read.
             // Attributes with Base == 0 (e.g. Y_POWER on Bleed) are already
