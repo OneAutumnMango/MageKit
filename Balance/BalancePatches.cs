@@ -306,13 +306,14 @@ namespace MageKit.Balance
         }
     }
 
-    // Change max rounds to 30
+    // Change min rounds to 1, max rounds to 35
     [HarmonyPatch(typeof(SelectionMenu), "ChangeNumberOfRounds")]
     public static class Patch_SelectionMenu_ChangeNumberOfRounds_Max30
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            return GameModificationHelpers.ReplaceIntConstant(instructions, 20, 35);
+            var updated = GameModificationHelpers.ReplaceIntConstant(instructions, 3, 1);
+            return GameModificationHelpers.ReplaceIntConstant(updated, 20, 35);
         }
     }
 
