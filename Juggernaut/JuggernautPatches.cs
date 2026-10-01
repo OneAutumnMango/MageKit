@@ -2,6 +2,7 @@ using HarmonyLib;
 using UnityEngine;
 using MageQuitModFramework.Spells;
 using MageQuitModFramework.Utilities;
+using System.Collections.Generic;
 using System.Linq;
 
 
@@ -15,6 +16,8 @@ namespace MageKit.Juggernaut
         private const float JuggernautSetupDelay = 2f;
         private static int jugPlayerIndex;
         private static bool IAmTheJuggernaut = true;
+        private static readonly Dictionary<int, int> JuggernautPickCounts = [];
+        private static int _lastJuggernautIndex = -1;
 
         public static void Initialize() =>
             PhotonHelper.RegisterEventHandler(JuggernautEventCode, HandleJuggernautAssignEvent);
@@ -41,10 +44,45 @@ namespace MageKit.Juggernaut
             if (playerIndices.Count == 0)
                 return;
 
-            var randomIndex = playerIndices[UnityEngine.Random.Range(0, playerIndices.Count)];
+            var randomIndex = SelectBalancedJuggernautIndex(playerIndices);
 
             // Raise event to all clients
             PhotonHelper.RaiseEvent(JuggernautEventCode, [randomIndex]);
+        }
+
+        private static int SelectBalancedJuggernautIndex(List<int> playerIndices)
+        {
+            foreach (var existingIndex in JuggernautPickCounts.Keys.ToList())
+            {
+                if (!playerIndices.Contains(existingIndex))
+                    JuggernautPickCounts.Remove(existingIndex);
+            }
+
+            foreach (var playerIndex in playerIndices)
+            {
+                if (!JuggernautPickCounts.ContainsKey(playerIndex))
+                    JuggernautPickCounts[playerIndex] = 0;
+            }
+
+            var minPickCount = playerIndices.Min(playerIndex => JuggernautPickCounts[playerIndex]);
+            var candidates = playerIndices
+                .Where(playerIndex => JuggernautPickCounts[playerIndex] == minPickCount)
+                .ToList();
+
+            if (candidates.Count > 1)
+                candidates.Remove(_lastJuggernautIndex);
+
+            if (candidates.Count == 0)
+                candidates = playerIndices
+                    .Where(playerIndex => JuggernautPickCounts[playerIndex] == minPickCount)
+                    .ToList();
+
+            var selectedIndex = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+
+            JuggernautPickCounts[selectedIndex]++;
+            _lastJuggernautIndex = selectedIndex;
+
+            return selectedIndex;
         }
 
         [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.StartBattle2))]
