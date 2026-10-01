@@ -166,7 +166,6 @@ namespace MageKit.Boosted
             switch (attribute)
             {
                 case "cooldown" when mult <= 0.6f:
-                    return false;
                 case "windUp"   when mult <= 0.4f:
                     return false;
             }
@@ -178,6 +177,7 @@ namespace MageKit.Boosted
             {
                 switch (attribute)
                 {
+                    case "cooldown" when mult <= 0.7f:
                     case "RADIUS" when mult >= 2.5f:
                     case "POWER"  when mult >= 2.5f:
                     case "windUp" when mult <= 0.5f:
