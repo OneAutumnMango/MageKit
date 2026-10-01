@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using MageQuitModFramework.Modding;
 using MageQuitModFramework.Utilities;
-using MageQuitModFramework.Data;
 using MageQuitModFramework.Spells;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,11 @@ namespace MageKit.Boosted
         private static readonly string[] ClassAttributeKeys = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
         private static readonly string[] SpellTableKeys = ["cooldown", "windUp", "windDown", "initialVelocity"];
         private static readonly string[] CustomKeys = ["HEAL"];
+
+        private static HashSet<SpellName> _spellsWithImplementedHealing = [
+            SpellName.FrogOfLife,
+            SpellName.Tonic
+        ];
 
         private static Dictionary<SpellName, string[]> ManualModifierRejections = [];
         private static SpellModifierTable _boostedTable;
@@ -70,7 +74,9 @@ namespace MageKit.Boosted
                 [SpellName.BubbleBreaker] = ["RADIUS", "POWER", "windUp", "windDown"],
                 [SpellName.Urchain      ] = ["RADIUS", "POWER"],
                 [SpellName.NorthPull    ] = ["RADIUS", "POWER"],
-                [SpellName.WaterCannon  ] = ["RADIUS"]
+                [SpellName.WaterCannon  ] = ["RADIUS"],
+                [SpellName.Chainmail    ] = ["RADIUS", "POWER"],
+                [SpellName.Spitfire     ] = ["Y_POWER"]
             };
 
             if (IsBloodElementLoaded())
@@ -138,7 +144,7 @@ namespace MageKit.Boosted
 
         public static bool IsUpgradeAllowed(SpellName spellName, string attribute)
         {
-            if (spellName != SpellName.FrogOfLife && attribute == "HEAL")
+            if (attribute == "HEAL" && !_spellsWithImplementedHealing.Contains(spellName))
                 return false;
 
             if (ManualModifierRejections.ContainsKey(spellName) && ManualModifierRejections[spellName].Contains(attribute))
@@ -161,7 +167,7 @@ namespace MageKit.Boosted
             {
                 case "cooldown" when mult <= 0.6f:
                     return false;
-                case "windup"   when mult <= 0.4f:
+                case "windUp"   when mult <= 0.4f:
                     return false;
             }
 
@@ -172,8 +178,8 @@ namespace MageKit.Boosted
             {
                 switch (attribute)
                 {
-                    case "cooldown":
                     case "RADIUS" when mult >= 2.5f:
+                    case "POWER"  when mult >= 2.5f:
                     case "windUp" when mult <= 0.5f:
                         return false;
                 }
@@ -272,6 +278,10 @@ namespace MageKit.Boosted
             GameModificationHelpers.ApplyFieldValuesToInstance(__instance, values);
         }
 
+        // ============================================
+        // Frog of life healing
+        // ============================================
+
         [HarmonyPatch(typeof(FrogOfLifeObject), "Heal")]
         public static class Patch_FrogOfLifeObject_Heal
         {
@@ -305,6 +315,81 @@ namespace MageKit.Boosted
                 }
             }
         }
+
+        // ============================================
+        // Tonic healing
+        // ============================================
+
+        [HarmonyPatch(typeof(TonicObject), "OnCollisionEnter")]
+        public static class Patch_TonicObject_OnCollisionEnter
+        {
+            public static float GetTonicCollisionHealing()  // must be public for TonicObject to call it
+            {
+                var baseHealing = 3f;
+                if (_boostedTable != null && _boostedTable.TryGetModifier(SpellName.Tonic, "HEAL", out var healMod))
+                    return baseHealing * healMod.Mult;
+                return baseHealing;
+            }
+
+            [HarmonyTranspiler]
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var helper = AccessTools.Method(typeof(Patch_TonicObject_OnCollisionEnter), nameof(GetTonicCollisionHealing))
+                    ?? throw new InvalidOperationException("GetTonicCollisionHealing not found");
+
+                foreach (var ci in instructions)
+                {
+                    if (ci.opcode == OpCodes.Ldc_R4 && ci.operand is float f && Math.Abs(f - 3f) < 1e-6f)
+                    {
+                        // 3f -> GetTonicCollisionHealing()
+                        yield return new CodeInstruction(OpCodes.Call, helper) { labels = ci.labels };
+                    }
+                    else
+                    {
+                        yield return ci;
+                    }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(TonicObject), "Update")]
+        public static class Patch_TonicObject_Update
+        {
+            private const float BaseTonicBaseHealPerSecond = 1.15f;
+            public static float GetTonicHealPerSecond()  // must be public for TonicObject to call it
+            {
+                float mult = 1f;
+                if (_boostedTable != null &&
+                    _boostedTable.TryGetModifier(SpellName.Tonic, "HEAL", out var healMod))
+                    mult = healMod.Mult;
+
+                return BaseTonicBaseHealPerSecond * mult;
+            }
+
+            [HarmonyTranspiler]
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var getHeal = AccessTools.Method(typeof(Patch_TonicObject_Update), nameof(GetTonicHealPerSecond))
+                    ?? throw new InvalidOperationException("GetTonicHealPerSecond not found");
+
+                foreach (var ci in instructions)
+                {
+                    if (ci.opcode == OpCodes.Ldc_R4 && ci.operand is float f && Math.Abs(f - 1.15f) < 1e-6f)
+                    {
+                        // 1.15f -> GetTonicHealPerSecond()
+                        yield return new CodeInstruction(OpCodes.Call, getHeal) { labels = ci.labels };
+                    }
+                    else
+                    {
+                        yield return ci;
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // Detect round end and provide options
+        // ============================================
 
         [HarmonyPatch(typeof(NetworkManager), "CombineRoundScores")]
         public static class Patch_NetworkManager_CombineRoundScores
