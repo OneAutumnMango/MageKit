@@ -122,5 +122,22 @@ namespace MageKit.Juggernaut
                 light.range = Mathf.Max(light.range, 8f);
             }
         }
+
+        public static void AssignJuggernautTeams(int jugPlayerIndex)
+        {
+            foreach (var kvp in PlayerManager.players)
+                kvp.Value.teamColor = kvp.Key == jugPlayerIndex ? TeamColor.Red : TeamColor.Blue;
+
+            PlayerManager.DetermineTeams();
+            Plugin.Log.LogInfo($"Juggernaut teams assigned: player {jugPlayerIndex} is Red, others are Blue");
+        }
+
+        public static void RevertJuggernautTeams()
+        {
+            foreach (var kvp in PlayerManager.players)
+                kvp.Value.teamColor = TeamColor.None;
+
+            PlayerManager.DetermineTeams();
+        }
     }
 }

@@ -105,6 +105,7 @@ namespace MageKit.Juggernaut
                 yield break;
             }
 
+            JuggernautHelper.AssignJuggernautTeams(jugPlayerIndex);
             JuggernautHelper.ApplyJuggernautVisuals(wc);
 
             if (!IAmTheJuggernaut)
@@ -122,6 +123,7 @@ namespace MageKit.Juggernaut
         {
             Plugin.Log.LogInfo("Battle ended, reverting Juggernaut spell modifications");
             JuggernautHelper.RevertJuggernautSpellModifications();
+            JuggernautHelper.RevertJuggernautTeams();
         }
 
         [HarmonyPatch(typeof(RpcManager), nameof(RpcManager.rpcAddWizard))]
