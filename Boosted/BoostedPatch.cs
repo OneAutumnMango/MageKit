@@ -14,12 +14,14 @@ namespace MageKit.Boosted
     {
         private static readonly string[] ClassAttributeKeys = ["DAMAGE", "RADIUS", "POWER", "Y_POWER"];
         private static readonly string[] SpellTableKeys = ["cooldown", "windUp", "windDown", "initialVelocity"];
-        private static readonly string[] CustomKeys = ["HEAL"];
+        private static readonly string[] CustomKeys = ["HEAL", "DPS", "DURATION"];
 
         private static HashSet<SpellName> _spellsWithImplementedHealing = [
             SpellName.FrogOfLife,
             SpellName.Tonic
         ];
+        private static HashSet<SpellName> _spellsWithImplementedDPS = [SpellName.Ignite];
+        private static HashSet<SpellName> _spellsWithImplementedDuration = [SpellName.Sapshot];
 
         private static Dictionary<SpellName, string[]> ManualModifierRejections = [];
         private static SpellModifierTable _boostedTable;
@@ -44,6 +46,8 @@ namespace MageKit.Boosted
                     "windDown"        => "Wind Down",
                     "initialVelocity" => "Initial Velocity",
                     "HEAL"            => "Healing",
+                    "DPS"             => "DPS",
+                    "DURATION"        => "Duration",
                     _ => Attribute
                 };
                 return $"{SpellNameRegistry.GetDisplayNameOrDefault(Spell)}: {attrDisplay}";
@@ -105,6 +109,13 @@ namespace MageKit.Boosted
 
         public static void PopulateSpellModifierTable()
         {
+            foreach (var spell in _spellsWithImplementedHealing)
+                SpellModificationSystem.Default()?.TrySetBase(spell, "HEAL", 1f);
+            foreach (var spell in _spellsWithImplementedDPS)
+                SpellModificationSystem.Default()?.TrySetBase(spell, "DPS", 1f);
+            foreach (var spell in _spellsWithImplementedDuration)
+                SpellModificationSystem.Default()?.TrySetBase(spell, "DURATION", 1f);
+
             _boostedTable = SpellModificationSystem.RegisterTable("boosted");
             Plugin.Log.LogInfo("[Boosted] Initialized spell modifier table");
         }
@@ -145,6 +156,10 @@ namespace MageKit.Boosted
         public static bool IsUpgradeAllowed(SpellName spellName, string attribute)
         {
             if (attribute == "HEAL" && !_spellsWithImplementedHealing.Contains(spellName))
+                return false;
+            if (attribute == "DPS" && !_spellsWithImplementedDPS.Contains(spellName))
+                return false;
+            if (attribute == "DURATION" && !_spellsWithImplementedDuration.Contains(spellName))
                 return false;
 
             if (ManualModifierRejections.ContainsKey(spellName) && ManualModifierRejections[spellName].Contains(attribute))
@@ -415,6 +430,72 @@ namespace MageKit.Boosted
                     Plugin.CurrentUpgradeOptions.AddRange(options);
 
                     Plugin.Log.LogInfo($"[Boosted] Generated {options.Count} upgrade options");
+                }
+            }
+        }
+
+        // ============================================
+        // Ignite damage per tick
+        // ============================================
+
+        [HarmonyPatch(typeof(IgniteObject), "FixedUpdate")]
+        public static class Patch_IgniteObject_FixedUpdate
+        {
+            public static float GetIgniteDamagePerFixedUpdate()
+            {
+                const float BaseDps = 1.8f;
+                if (_boostedTable != null && _boostedTable.TryGetModifier(SpellName.Ignite, "DPS", out var mod))
+                    return BaseDps * mod.Mult;
+                return BaseDps;
+            }
+
+            [HarmonyTranspiler]
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var getter = AccessTools.Method(typeof(Patch_IgniteObject_FixedUpdate), nameof(GetIgniteDamagePerFixedUpdate))
+                    ?? throw new InvalidOperationException("GetIgniteDamagePerFixedUpdate not found");
+                foreach (var ci in instructions)
+                {
+                    if (ci.opcode == OpCodes.Ldc_R4 && ci.operand is float f && Math.Abs(f - 1.8f) < 1e-6f)
+                        yield return new CodeInstruction(OpCodes.Call, getter) { labels = ci.labels };
+                    else
+                        yield return ci;
+                }
+            }
+        }
+
+        // ============================================
+        // Sapshot suck duration
+        // ============================================
+
+        [HarmonyPatch(typeof(SapshotObject), "localCollision")]
+        public static class Patch_SapshotObject_localCollision
+        {
+            public static float GetSapshotSuckDuration()
+            {
+                const float BaseDuration = 5f;
+                if (_boostedTable != null && _boostedTable.TryGetModifier(SpellName.Sapshot, "DURATION", out var mod))
+                    return BaseDuration * mod.Mult;
+                return BaseDuration;
+            }
+
+            [HarmonyTranspiler]
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var getter = AccessTools.Method(typeof(Patch_SapshotObject_localCollision), nameof(GetSapshotSuckDuration))
+                    ?? throw new InvalidOperationException("GetSapshotSuckDuration not found");
+
+                // replace sound duration, state timer and dot duration
+                var instList = new List<CodeInstruction>(instructions);
+                for (int i = 0; i < instList.Count; i++)
+                {
+                    var ci = instList[i];
+                    if (ci.opcode == OpCodes.Ldc_R4 && ci.operand is float f && Math.Abs(f - 5f) < 1e-6f)
+                    {
+                        yield return new CodeInstruction(OpCodes.Call, getter) { labels = ci.labels };
+                        continue;
+                    }
+                    yield return ci;
                 }
             }
         }
